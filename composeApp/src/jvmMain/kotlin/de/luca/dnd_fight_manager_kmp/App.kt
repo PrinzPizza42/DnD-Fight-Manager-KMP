@@ -2,17 +2,21 @@ package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.Button
@@ -81,20 +85,30 @@ fun App() {
                             .background(Color.White)
                     )
                 }
-                LazyColumn(Modifier
-                    .fillMaxSize()
-                    .background(Color.White, RoundedCornerShape(15.dp))
-                    .padding(0.dp, 10.dp, 0.dp, 10.dp)) {
-                    itemsIndexed(
-                        items = fighters,
-                        key = { _, fighter: Fighter -> fighter.id }
-                    ) {
-                        index: Int, fighter: Fighter ->
-                        Box(Modifier.animateItem()) {
-                            fighters.get(index).paintListElement(removeFighter, index)
+                Box {
+                    val listState = rememberLazyListState()
+                    LazyColumn(
+                        Modifier
+                        .fillMaxSize()
+                        .background(Color.White, RoundedCornerShape(15.dp))
+                        .padding(0.dp, 10.dp, 0.dp, 10.dp),
+                        state = listState) {
+                        itemsIndexed(
+                            items = fighters,
+                            key = { _, fighter: Fighter -> fighter.id }
+                        ) {
+                                index: Int, fighter: Fighter ->
+                            Box(Modifier.animateItem()) {
+                                fighters.get(index).paintListElement(removeFighter, index)
+                            }
                         }
                     }
-                }
+                    VerticalScrollbar(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight(),
+                        adapter = rememberScrollbarAdapter(scrollState = listState)
+                    )}
             }
         }
 
