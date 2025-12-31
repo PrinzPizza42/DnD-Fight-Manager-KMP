@@ -32,12 +32,16 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class Fighter(
     var name: MutableState<String> = mutableStateOf("Name"),
     var extraInfo: MutableState<String> = mutableStateOf("Info"),
     var initiative: MutableState<Int> = mutableStateOf(1)
 ) {
+    @OptIn(ExperimentalUuidApi::class)
+    val id = Uuid.random()
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun paintListElement(removeFighter: (Fighter) -> Boolean, index: Int) {
