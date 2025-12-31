@@ -2,6 +2,7 @@ package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -107,7 +108,15 @@ fun App() {
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(scrollState = listState)
+                        adapter = rememberScrollbarAdapter(scrollState = listState),
+                        style = ScrollbarStyle(
+                            minimalHeight = 16.dp,
+                            thickness = 8.dp,
+                            shape = RoundedCornerShape(4.dp),
+                            hoverDurationMillis = 300,
+                            unhoverColor = Color.Gray,
+                            hoverColor = Color.DarkGray
+                        )
                     )}
             }
         }
