@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
@@ -21,21 +22,23 @@ data class Fighter(
 ) {
     @Composable
     fun paintListElement(removeFighter: (Fighter) -> Boolean, index: Int) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(5.dp)
-                .background(Color.LightGray)
-        ) {
-            Text("$index", modifier = Modifier.weight(1f))
-            Box(modifier = Modifier.weight(1f)) {textField(name, "Name:")}
-            Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
-            Box(modifier = Modifier.weight(1f)) {textFieldInt(initiative, "Initiative:")}
-            Button(
-                onClick = { removeFighter(this@Fighter) },
-                content = { Text("Entfernen") },
-                modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
-            )
+        MaterialTheme {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp)
+                    .background(Color.LightGray)
+            ) {
+                Text("$index", modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.weight(1f)) {textField(name, "Name:")}
+                Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
+                Box(modifier = Modifier.weight(1f)) {textFieldInt(initiative, "Initiative:")}
+                Button(
+                    onClick = { removeFighter(this@Fighter) },
+                    content = { Text("Entfernen", color = Color.White) },
+                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
+                )
+            }
         }
     }
 }

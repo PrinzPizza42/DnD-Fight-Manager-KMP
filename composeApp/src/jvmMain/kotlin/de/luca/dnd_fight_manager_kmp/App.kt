@@ -49,6 +49,11 @@ fun App() {
                     modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
                 )
                 Text("Kämpfer-Liste")
+                Button(
+                    onClick = { fighters.sortByDescending { it.initiative.value } },
+                    content = { Text("Sortieren") },
+                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
+                )
             }
             LazyColumn {
                 items(fighters.size) { index ->
