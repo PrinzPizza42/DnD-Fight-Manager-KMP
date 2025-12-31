@@ -2,11 +2,14 @@ package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -59,9 +62,14 @@ fun App() {
                     modifier = Modifier.padding(5.dp)
                 )
             }
-            LazyColumn {
-                items(fighters.size) { index ->
-                    fighters.get(index).paintListElement(removeFighter, index)
+            Box{
+                Box(Modifier.background(Color.Gray).fillMaxSize())
+                LazyColumn(Modifier
+                    .background(Color.White, RoundedCornerShape(15.dp))
+                    .padding(0.dp, 10.dp, 0.dp, 10.dp)) {
+                    items(fighters.size) { index ->
+                        fighters.get(index).paintListElement(removeFighter, index)
+                    }
                 }
             }
         }
