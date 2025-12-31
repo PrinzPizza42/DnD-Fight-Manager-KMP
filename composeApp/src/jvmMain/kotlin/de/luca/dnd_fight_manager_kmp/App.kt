@@ -1,6 +1,7 @@
 package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -41,18 +43,20 @@ fun App() {
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Gray)
+                    .background(Color.Gray),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
                     onClick = { fighters.add(Fighter(mutableStateOf("Fighter-${count++}"))) },
                     content = { Text("+") },
-                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
+                    modifier = Modifier.padding(5.dp)
                 )
                 Text("Kämpfer-Liste")
                 Button(
                     onClick = { fighters.sortByDescending { it.initiative.value } },
                     content = { Text("Sortieren") },
-                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
+                    modifier = Modifier.padding(5.dp)
                 )
             }
             LazyColumn {
