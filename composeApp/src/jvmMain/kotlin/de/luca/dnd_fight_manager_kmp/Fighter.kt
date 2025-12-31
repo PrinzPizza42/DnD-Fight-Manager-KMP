@@ -8,14 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 data class Fighter(
-    var name: String = "Name",
-    var extraInfo: String = "Info",
-    var initiative: Int = 1
+    var name: MutableState<String> = mutableStateOf("Name"),
+    var extraInfo: MutableState<String> = mutableStateOf("Info"),
+    var initiative: MutableState<Int> = mutableStateOf(1)
 ) {
     @Composable
     fun paintListElement(removeFighter: (Fighter) -> Boolean, index: Int) {
@@ -26,9 +28,9 @@ data class Fighter(
                 .background(Color.LightGray)
         ) {
             Text("$index", modifier = Modifier.weight(1f))
-            Box(modifier = Modifier.weight(1f)) {textField({name = it}, name, "Name:")}
-            Box(modifier = Modifier.weight(1f)) {textField({extraInfo = it}, extraInfo, "Info:")}
-            Box(modifier = Modifier.weight(1f)) {textFieldInt({initiative = it}, initiative, "Initiative:")}
+            Box(modifier = Modifier.weight(1f)) {textField(name, "Name:")}
+            Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
+            Box(modifier = Modifier.weight(1f)) {textFieldInt(initiative, "Initiative:")}
             Button(
                 onClick = { removeFighter(this@Fighter) },
                 content = { Text("Entfernen") },

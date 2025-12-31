@@ -16,8 +16,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -33,6 +35,8 @@ fun App() {
             fighters.remove(fighter)
         }
 
+        var count = 0
+
         Column {
             Row (
                 modifier = Modifier
@@ -40,7 +44,7 @@ fun App() {
                     .background(Color.Gray)
             ) {
                 Button(
-                    onClick = { fighters.add(Fighter()) },
+                    onClick = { fighters.add(Fighter(mutableStateOf("Fighter-${count++}"))) },
                     content = { Text("+") },
                     modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp)
                 )
@@ -57,17 +61,14 @@ fun App() {
 }
 
 @Composable
-fun textField(onChange: (String) -> Unit, input: String, label: String) {
+fun textField(input: MutableState<String>, label: String) {
     val focusManager = LocalFocusManager.current
-
-    var value: String by remember { mutableStateOf(input) }
 
     MaterialTheme {
         OutlinedTextField(
-            value = value,
+            value = input.value,
             onValueChange = { text ->
-                onChange(text)
-                value = text
+                input.value = text
             },
             modifier = Modifier.onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown) {
@@ -96,41 +97,61 @@ fun textField(onChange: (String) -> Unit, input: String, label: String) {
 }
 
 @Composable
-fun textFieldInt(onChange: (Int) -> Unit, input: Int, label: String) {
+fun textFieldInt(input: MutableState<Int>, label: String) {
     val focusManager = LocalFocusManager.current
-
-    var value: String by remember { mutableStateOf(input.toString()) }
+    var isError by remember { mutableStateOf(false) }
 
     MaterialTheme {
         OutlinedTextField(
-            value = value,
+            value = input.value.toString(),
             onValueChange = { text: String ->
-                value = text
-                if(value.toIntOrNull() != null) onChange(text.toInt())
+                if(text.toIntOrNull() != null) input.value = text.toInt()
             },
             modifier = Modifier.onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown) {
-                    if(value.toIntOrNull() == null) return@onPreviewKeyEvent false
+                    val isDigit = event.utf16CodePoint.toChar().isDigit()
 
-                    when (event.key) {
-                        Key.Enter -> {
-                            focusManager.clearFocus()
-                            true
-                        }
+                    // 2. Ist es eine erlaubte Navigationstaste?
+                    // (Wichtig, damit der User korrigieren oder den Cursor bewegen kann)
+                    val isNavKey = event.key in listOf(
+                        Key.Backspace, Key.Delete,
+                        Key.DirectionLeft, Key.DirectionRight,
+                        Key.DirectionUp, Key.DirectionDown,
+                        Key.Tab, Key.Enter, Key.MoveHome, Key.MoveEnd, Key.Escape
+                    )
 
-                        Key.Escape -> {
-                            focusManager.clearFocus()
-                            true
-                        }
-
-                        Key.Backspace -> false
-                        else -> true
+                    if(!isDigit && !isNavKey) {
+                        isError = true
+                        return@onPreviewKeyEvent true
                     }
+                    else {
+                        isError = false
+                        when (event.key) {
+                            Key.Enter -> {
+                                focusManager.clearFocus()
+                                true
+                            }
+
+                            Key.Escape -> {
+                                focusManager.clearFocus()
+                                true
+                            }
+
+                            Key.Backspace -> {
+                                val canBackspace = input.value.toString().length <= 1
+                                if(canBackspace) input.value = 0
+                                return@onPreviewKeyEvent canBackspace
+                            }
+                            else -> true
+                        }
+                        return@onPreviewKeyEvent false
+                    }
+
                 } else {
                     false
                 }
             },
-            isError = value.toIntOrNull() == null,
+            isError = isError,
             label = { label },
             singleLine = true
         )
