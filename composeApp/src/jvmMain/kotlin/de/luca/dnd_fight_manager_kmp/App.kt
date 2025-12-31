@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -38,6 +39,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.uuid.ExperimentalUuidApi
+import de.luca.dnd_fight_manager_kmp.Data.paintOverlay
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -46,81 +48,100 @@ fun App() {
     MaterialTheme {
         val fighters = remember { mutableStateListOf<Fighter>() }
 
-        val removeFighter = {
-            fighter: Fighter ->
+        val removeFighter = { fighter: Fighter ->
             fighters.remove(fighter)
         }
 
         var count = 0
+        var showOverlay by remember { mutableStateOf(false) }
 
-        Column {
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Gray),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { fighters.add(Fighter(mutableStateOf("Fighter-${count++}"))) },
-                    content = { Text("+") },
-                    modifier = Modifier.padding(5.dp)
-                )
-                Text("Kämpfer-Liste")
-                Button(
-                    onClick = { fighters.sortByDescending { it.initiative.value } },
-                    content = { Text("Sortieren") },
-                    modifier = Modifier.padding(5.dp)
-                )
-            }
-            Box{
-                Box(Modifier.background(Color.Gray).fillMaxSize())
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.BottomCenter
+        Box(
+            Modifier.blur(if(showOverlay) 3.dp else 0.dp)
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.Gray),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(
-                        Modifier
-                            .height(15.dp)
-                            .fillMaxWidth()
-                            .background(Color.White)
+                    Button(
+                        onClick = { fighters.add(Fighter(mutableStateOf("Fighter-${count++}"))) },
+                        content = { Text("+") },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                    Text("Kämpfer-Liste")
+                    Button(
+                        onClick = { fighters.sortByDescending { it.initiative.value } },
+                        content = { Text("Sortieren") },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                    Button(
+                        onClick = { showOverlay = true },
+                        content = { Text("Speichermenü") },
+                        modifier = Modifier.padding(5.dp)
                     )
                 }
                 Box {
-                    val listState = rememberLazyListState()
-                    LazyColumn(
-                        Modifier
-                        .fillMaxSize()
-                        .background(Color.White, RoundedCornerShape(15.dp))
-                        .padding(0.dp, 10.dp, 0.dp, 10.dp),
-                        state = listState) {
-                        itemsIndexed(
-                            items = fighters,
-                            key = { _, fighter: Fighter -> fighter.id }
+                    Box(Modifier.background(Color.Gray).fillMaxSize())
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Box(
+                            Modifier
+                                .height(15.dp)
+                                .fillMaxWidth()
+                                .background(Color.White)
+                        )
+                    }
+                    Box {
+                        val listState = rememberLazyListState()
+                        LazyColumn(
+                            Modifier
+                                .fillMaxSize()
+                                .background(Color.White, RoundedCornerShape(15.dp))
+                                .padding(0.dp, 10.dp, 0.dp, 10.dp),
+                            state = listState
                         ) {
-                                index: Int, fighter: Fighter ->
-                            Box(Modifier.animateItem()) {
-                                fighters.get(index).paintListElement(removeFighter, index)
+                            itemsIndexed(
+                                items = fighters,
+                                key = { _, fighter: Fighter -> fighter.id }
+                            ) { index: Int, fighter: Fighter ->
+                                Box(Modifier.animateItem()) {
+                                    fighters.get(index).paintListElement(removeFighter, index)
+                                }
                             }
                         }
-                    }
-                    VerticalScrollbar(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .fillMaxHeight(),
-                        adapter = rememberScrollbarAdapter(scrollState = listState),
-                        style = ScrollbarStyle(
-                            minimalHeight = 16.dp,
-                            thickness = 8.dp,
-                            shape = RoundedCornerShape(4.dp),
-                            hoverDurationMillis = 300,
-                            unhoverColor = Color.Gray,
-                            hoverColor = Color.DarkGray
+                        VerticalScrollbar(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight(),
+                            adapter = rememberScrollbarAdapter(scrollState = listState),
+                            style = ScrollbarStyle(
+                                minimalHeight = 16.dp,
+                                thickness = 8.dp,
+                                shape = RoundedCornerShape(4.dp),
+                                hoverDurationMillis = 300,
+                                unhoverColor = Color.Gray,
+                                hoverColor = Color.DarkGray
+                            )
                         )
-                    )}
+                    }
+                }
+            }
+
+        }
+        if (showOverlay) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+            ) {
+                paintOverlay(fighters, { showOverlay = false })
             }
         }
-
     }
 }
 
