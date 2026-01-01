@@ -1,7 +1,6 @@
 package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
@@ -31,15 +30,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.uuid.ExperimentalUuidApi
-import de.luca.dnd_fight_manager_kmp.Data.paintOverlay
+import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
@@ -53,10 +52,11 @@ fun App() {
         }
 
         var count = 0
-        var showOverlay by remember { mutableStateOf(false) }
+        var showOverlaySave by remember { mutableStateOf(false) }
+        var showOverlayLoad by remember { mutableStateOf(false) }
 
         Box(
-            Modifier.blur(if(showOverlay) 3.dp else 0.dp)
+            Modifier.blur(if(showOverlaySave) 3.dp else 0.dp)
         ) {
             Column {
                 Row(
@@ -78,8 +78,13 @@ fun App() {
                         modifier = Modifier.padding(5.dp)
                     )
                     Button(
-                        onClick = { showOverlay = true },
-                        content = { Text("Speichermenü") },
+                        onClick = { showOverlaySave = true },
+                        content = { Text("Speichern") },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                    Button(
+                        onClick = { showOverlayLoad = true },
+                        content = { Text("Laden") },
                         modifier = Modifier.padding(5.dp)
                     )
                 }
@@ -133,13 +138,22 @@ fun App() {
             }
 
         }
-        if (showOverlay) {
+        if (showOverlaySave) {
             Box(
                 Modifier
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintOverlay(fighters, { showOverlay = false })
+                paintSaveOverlay(fighters, { showOverlaySave = false })
+            }
+        }
+        if(showOverlayLoad) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent)
+            ) {
+                paintLoadOverlay(fighters, { showOverlayLoad = false })
             }
         }
     }

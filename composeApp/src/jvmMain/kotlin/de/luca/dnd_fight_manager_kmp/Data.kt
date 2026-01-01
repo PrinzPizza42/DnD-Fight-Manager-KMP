@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import java.nio.file.Paths
 import kotlin.io.path.exists
 import kotlin.uuid.ExperimentalUuidApi
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
 object Data {
     private val userHome = System.getProperty("user.home")
@@ -33,7 +36,7 @@ object Data {
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun paintOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit) {
+    fun paintSaveOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit) {
         Box(
             contentAlignment = Alignment.Center
         ){
@@ -75,6 +78,88 @@ object Data {
                 }
             }
         }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun paintLoadOverlay(
+        currentFighters: MutableList<Fighter>,
+        onClose: () -> Unit
+    ) {
+        val fileList = remember { getAvailableFiles() }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .onClick {}
+            )
+
+            Box(
+                Modifier
+                    .size(500.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(20.dp)
+            ) {
+                Column {
+                    Text("Lade Datei aus: $folder", modifier = Modifier.padding(bottom = 10.dp))
+
+                    if (fileList.isEmpty()) {
+                        Text("Keine Dateien gefunden.", color = Color.Gray)
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 10.dp)
+                                .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
+                        ) {
+                            items(fileList) { fileName ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .onClick {
+                                            val loadedFighters = load(fileName)
+                                            if (loadedFighters.isNotEmpty()) {
+                                                currentFighters.clear()
+                                                currentFighters.addAll(loadedFighters)
+                                                onClose()
+                                            }
+                                        }
+                                        .padding(5.dp)
+                                        .background(Color.LightGray, RoundedCornerShape(10.dp))
+                                        .padding(5.dp)
+                                ) {
+                                    Text("📄 $fileName")
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Button(
+                        onClick = { onClose() },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Text("Abbrechen")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getAvailableFiles(): List<String> {
+        secureFolder()
+        val files = folder.toFile().listFiles()
+        return files
+            ?.filter { it.isFile && it.name.endsWith(".txt") }
+            ?.map { it.name.removeSuffix(".txt") }
+            ?.sorted()
+            ?: emptyList()
     }
 
     @OptIn(ExperimentalUuidApi::class)
