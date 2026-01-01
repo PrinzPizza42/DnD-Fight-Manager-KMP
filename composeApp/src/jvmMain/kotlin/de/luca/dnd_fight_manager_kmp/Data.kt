@@ -1,5 +1,7 @@
 package de.luca.dnd_fight_manager_kmp
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,6 +29,12 @@ import kotlin.io.path.exists
 import kotlin.uuid.ExperimentalUuidApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 
 object Data {
     private val userHome = System.getProperty("user.home")
@@ -80,7 +88,7 @@ object Data {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
     @Composable
     fun paintLoadOverlay(
         currentFighters: MutableList<Fighter>,
@@ -118,6 +126,9 @@ object Data {
                                 .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
                         ) {
                             items(fileList) { fileName ->
+                                var isHovered by remember { mutableStateOf(false) }
+                                val shadow by animateDpAsState(if(isHovered) 5.dp else 0.dp, tween(200))
+
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -130,8 +141,11 @@ object Data {
                                             }
                                         }
                                         .padding(5.dp)
+                                        .shadow(shadow)
                                         .background(Color.LightGray, RoundedCornerShape(10.dp))
                                         .padding(5.dp)
+                                        .onPointerEvent(PointerEventType.Enter) { isHovered = true }
+                                        .onPointerEvent(PointerEventType.Exit) { isHovered = false }
                                 ) {
                                     Text("📄 $fileName")
                                 }
