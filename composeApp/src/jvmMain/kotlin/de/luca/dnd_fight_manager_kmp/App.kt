@@ -56,7 +56,7 @@ fun App() {
         var showOverlayLoad by remember { mutableStateOf(false) }
 
         Box(
-            Modifier.blur(if(showOverlaySave) 3.dp else 0.dp)
+            Modifier.blur(if(showOverlaySave || showOverlayLoad) 3.dp else 0.dp)
         ) {
             Column {
                 Row(

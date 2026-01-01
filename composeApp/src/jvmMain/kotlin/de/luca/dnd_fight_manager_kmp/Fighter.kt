@@ -52,7 +52,7 @@ data class Fighter(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
-                    .shadow(shadow)
+                    .shadow(shadow, shape = RoundedCornerShape(10.dp))
                     .background(Color.LightGray, RoundedCornerShape(10.dp))
                     .padding(5.dp)
                     .onPointerEvent(PointerEventType.Enter) { isHovered = true }
