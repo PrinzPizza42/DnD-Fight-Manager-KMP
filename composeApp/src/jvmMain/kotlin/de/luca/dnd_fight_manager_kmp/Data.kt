@@ -96,7 +96,7 @@ object Data {
         currentFighters: MutableList<Fighter>,
         onClose: () -> Unit
     ) {
-        val fileList = remember { getAvailableFiles() }
+        var fileList = remember { getAvailableFiles() }
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -134,7 +134,7 @@ object Data {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(50.dp)
+                                        .height(70.dp)
                                         .onClick {
                                             val loadedFighters = load(fileName)
                                             currentListName = fileName.removeSuffix(".txt")
@@ -152,6 +152,14 @@ object Data {
                                         .onPointerEvent(PointerEventType.Exit) { isHovered = false }
                                 ) {
                                     Text("📄 $fileName")
+                                    Button(
+                                        onClick = {
+                                            removeFile(fileName)
+                                            fileList = getAvailableFiles()
+                                        },
+                                        content = { Text("Löschen") },
+                                        modifier = Modifier.padding(5.dp)
+                                    )
                                 }
                             }
                         }
@@ -170,14 +178,22 @@ object Data {
         }
     }
 
-    private fun getAvailableFiles(): List<String> {
+    private fun removeFile(filename: String) {
+        println("Removing $filename")
+        val file = folder.resolve(filename + ".txt").toFile()
+        if(file.exists()) file.delete()
+        println("Removed $filename")
+    }
+
+    private fun getAvailableFiles(): MutableList<String> {
         secureFolder()
-        val files = folder.toFile().listFiles()
+        val files = folder.toFile().listFiles().toMutableList()
+        println("Found files: ${files.size}")
         return files
             ?.filter { it.isFile && it.name.endsWith(".txt") }
             ?.map { it.name.removeSuffix(".txt") }
             ?.sorted()
-            ?: emptyList()
+            ?: mutableListOf<String>()
     }
 
     @OptIn(ExperimentalUuidApi::class)
