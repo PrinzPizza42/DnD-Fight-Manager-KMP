@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -96,7 +97,7 @@ object Data {
         currentFighters: MutableList<Fighter>,
         onClose: () -> Unit
     ) {
-        var fileList = remember { getAvailableFiles() }
+        val fileList = remember { getAvailableFiles().toMutableStateList() }
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -155,7 +156,7 @@ object Data {
                                     Button(
                                         onClick = {
                                             removeFile(fileName)
-                                            fileList = getAvailableFiles()
+                                            fileList.remove(fileName)
                                         },
                                         content = { Text("Löschen") },
                                         modifier = Modifier.padding(5.dp)
@@ -185,15 +186,15 @@ object Data {
         println("Removed $filename")
     }
 
-    private fun getAvailableFiles(): MutableList<String> {
+    private fun getAvailableFiles(): List<String> {
         secureFolder()
-        val files = folder.toFile().listFiles().toMutableList()
+        val files = folder.toFile().listFiles()
         println("Found files: ${files.size}")
         return files
             ?.filter { it.isFile && it.name.endsWith(".txt") }
             ?.map { it.name.removeSuffix(".txt") }
             ?.sorted()
-            ?: mutableListOf<String>()
+            ?: listOf()
     }
 
     @OptIn(ExperimentalUuidApi::class)
