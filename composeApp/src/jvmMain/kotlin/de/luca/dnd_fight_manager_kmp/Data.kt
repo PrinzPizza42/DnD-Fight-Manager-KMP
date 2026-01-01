@@ -39,6 +39,7 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 object Data {
     private val userHome = System.getProperty("user.home")
     private val folder = Paths.get(userHome).resolve("DnD-Fight-Manager-KMP")
+    private var currentListName = "encounter_1"
 
     private const val SEPARATOR = ";;"
 
@@ -63,7 +64,7 @@ object Data {
                 Column {
                     Text("Speicherort: $folder")
 
-                    val fileName = remember { mutableStateOf("encounter_1") }
+                    val fileName = remember { mutableStateOf(currentListName) }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -73,6 +74,7 @@ object Data {
                         Button(
                             onClick = {
                                 save(fighters, fileName.value)
+                                currentListName = fileName.value
                                 onClose()
                             },
                             content = { Text("Speichern") },
@@ -135,6 +137,7 @@ object Data {
                                         .height(50.dp)
                                         .onClick {
                                             val loadedFighters = load(fileName)
+                                            currentListName = fileName.removeSuffix(".txt")
                                             if (loadedFighters.isNotEmpty()) {
                                                 currentFighters.clear()
                                                 currentFighters.addAll(loadedFighters)
