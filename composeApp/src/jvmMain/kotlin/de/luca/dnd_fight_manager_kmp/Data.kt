@@ -29,6 +29,7 @@ import kotlin.io.path.exists
 import kotlin.uuid.ExperimentalUuidApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
@@ -40,13 +41,12 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 object Data {
     private val userHome = System.getProperty("user.home")
     private val folder = Paths.get(userHome).resolve("DnD-Fight-Manager-KMP")
-    private var currentListName = "encounter_1"
 
     private const val SEPARATOR = ";;"
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun paintSaveOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit) {
+    fun paintSaveOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit, currentListName: MutableState<String>) {
         Box(
             contentAlignment = Alignment.Center
         ){
@@ -65,7 +65,7 @@ object Data {
                 Column {
                     Text("Speicherort: $folder")
 
-                    val fileName = remember { mutableStateOf(currentListName) }
+                    val fileName = remember { mutableStateOf(currentListName.value) }
 
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -75,7 +75,7 @@ object Data {
                         Button(
                             onClick = {
                                 save(fighters, fileName.value)
-                                currentListName = fileName.value
+                                currentListName.value = fileName.value
                                 onClose()
                             },
                             content = { Text("Speichern") },
@@ -95,7 +95,8 @@ object Data {
     @Composable
     fun paintLoadOverlay(
         currentFighters: MutableList<Fighter>,
-        onClose: () -> Unit
+        onClose: () -> Unit,
+        currentListName: MutableState<String>
     ) {
         val fileList = remember { getAvailableFiles().toMutableStateList() }
 
@@ -138,7 +139,7 @@ object Data {
                                         .height(70.dp)
                                         .onClick {
                                             val loadedFighters = load(fileName)
-                                            currentListName = fileName.removeSuffix(".txt")
+                                            currentListName.value = fileName.removeSuffix(".txt")
                                             if (loadedFighters.isNotEmpty()) {
                                                 currentFighters.clear()
                                                 currentFighters.addAll(loadedFighters)

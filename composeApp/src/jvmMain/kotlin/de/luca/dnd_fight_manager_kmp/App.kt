@@ -43,12 +43,18 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 @Preview
-fun App() {
+fun App(title: MutableState<String>) {
     MaterialTheme {
         val fighters = remember { mutableStateListOf<Fighter>() }
 
         val removeFighter = { fighter: Fighter ->
             fighters.remove(fighter)
+        }
+
+        val currentListName = remember { mutableStateOf("encounter_1") }
+
+        LaunchedEffect(currentListName.value) {
+            title.value = "DnD-Fight-Manager-KMP - ${currentListName.value}"
         }
 
         var count = 0
@@ -144,7 +150,7 @@ fun App() {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintSaveOverlay(fighters, { showOverlaySave = false })
+                paintSaveOverlay(fighters, { showOverlaySave = false }, currentListName)
             }
         }
         if(showOverlayLoad) {
@@ -153,7 +159,7 @@ fun App() {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintLoadOverlay(fighters, { showOverlayLoad = false })
+                paintLoadOverlay(fighters, { showOverlayLoad = false }, currentListName)
             }
         }
     }
