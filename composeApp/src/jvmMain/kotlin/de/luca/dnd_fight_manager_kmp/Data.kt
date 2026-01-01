@@ -132,6 +132,7 @@ object Data {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .height(50.dp)
                                         .onClick {
                                             val loadedFighters = load(fileName)
                                             if (loadedFighters.isNotEmpty()) {
