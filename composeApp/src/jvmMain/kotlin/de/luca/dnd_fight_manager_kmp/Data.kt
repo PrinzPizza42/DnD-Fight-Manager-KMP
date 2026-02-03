@@ -181,8 +181,7 @@ object Data {
     }
 
     private fun removeFile(filename: String) {
-        println("Removing $filename")
-        val file = folder.resolve(filename + ".txt").toFile()
+        val file = folder.resolve("$filename.txt").toFile()
         if(file.exists()) file.delete()
         println("Removed $filename")
     }

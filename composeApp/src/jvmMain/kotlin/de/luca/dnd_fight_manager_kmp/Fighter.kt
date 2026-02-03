@@ -1,10 +1,8 @@
 package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -24,12 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.uuid.ExperimentalUuidApi
@@ -38,13 +34,15 @@ import kotlin.uuid.Uuid
 data class Fighter(
     var name: MutableState<String> = mutableStateOf("Name"),
     var extraInfo: MutableState<String> = mutableStateOf("Info"),
-    var initiative: MutableState<Int> = mutableStateOf(1)
+    var initiative: MutableState<Int> = mutableStateOf(1),
+    var group: MutableState<Group> = GroupManager.freeGroup
 ) {
     @OptIn(ExperimentalUuidApi::class)
     val id = Uuid.random()
+
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
-    fun paintListElement(removeFighter: (Fighter) -> Boolean, index: Int) {
+    fun paintListElement(index: Int) {
         MaterialTheme {
             var isHovered by remember { mutableStateOf(false) }
             val shadow by animateDpAsState(if(isHovered) 15.dp else 0.dp, tween(200))
@@ -65,11 +63,15 @@ data class Fighter(
                 Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
                 Box(modifier = Modifier.width(60.dp)) {textFieldInt(initiative, "Initiative:")}
                 Button(
-                    onClick = { removeFighter(this@Fighter) },
+                    onClick = { delete() },
                     content = { Text("Entfernen", color = Color.White) },
                     modifier = Modifier.padding(5.dp)
                 )
             }
         }
+    }
+
+    fun delete() {
+        group.value.removeFighter(this)
     }
 }

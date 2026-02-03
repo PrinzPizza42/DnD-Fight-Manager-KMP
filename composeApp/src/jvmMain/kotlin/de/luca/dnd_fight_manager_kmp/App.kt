@@ -45,12 +45,6 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 @Preview
 fun App(title: MutableState<String>) {
     MaterialTheme {
-        val fighters = remember { mutableStateListOf<Fighter>() }
-
-        val removeFighter = { fighter: Fighter ->
-            fighters.remove(fighter)
-        }
-
         val currentListName = remember { mutableStateOf("encounter_1") }
 
         LaunchedEffect(currentListName.value) {
@@ -73,13 +67,13 @@ fun App(title: MutableState<String>) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { fighters.add(Fighter(mutableStateOf("Fighter-${count++}"))) },
+                        onClick = { GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${count++}"))) },
                         content = { Text("+") },
                         modifier = Modifier.padding(5.dp)
                     )
                     Text("Kämpfer-Liste")
                     Button(
-                        onClick = { fighters.sortByDescending { it.initiative.value } },
+                        onClick = { GroupManager.getAllFighters().sortByDescending { it.initiative.value } },
                         content = { Text("Sortieren") },
                         modifier = Modifier.padding(5.dp)
                     )
@@ -117,11 +111,11 @@ fun App(title: MutableState<String>) {
                             state = listState
                         ) {
                             itemsIndexed(
-                                items = fighters,
+                                items = GroupManager.getAllFighters(),
                                 key = { _, fighter: Fighter -> fighter.id }
                             ) { index: Int, fighter: Fighter ->
                                 Box(Modifier.animateItem()) {
-                                    fighters.get(index).paintListElement(removeFighter, index)
+                                    GroupManager.getAllFighters()[index].paintListElement(index)
                                 }
                             }
                         }
@@ -150,7 +144,7 @@ fun App(title: MutableState<String>) {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintSaveOverlay(fighters, { showOverlaySave = false }, currentListName)
+                paintSaveOverlay(GroupManager.getAllFighters(), { showOverlaySave = false }, currentListName)
             }
         }
         if(showOverlayLoad) {
@@ -159,7 +153,7 @@ fun App(title: MutableState<String>) {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintLoadOverlay(fighters, { showOverlayLoad = false }, currentListName)
+                paintLoadOverlay(GroupManager.getAllFighters(), { showOverlayLoad = false }, currentListName)
             }
         }
     }

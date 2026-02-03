@@ -38,8 +38,14 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "de.luca.dnd_fight_manager_kmp"
+            packageName = "DnD-Fight-Manager-KMP"
             packageVersion = "1.0.0"
+
+            windows {
+                iconFile.set(project.file("src/jvmMain/composeResources/drawable/icon.ico"))
+                menuGroup = "DnD-Fight-Manager-KMP"
+                shortcut = true
+            }
         }
     }
 }
