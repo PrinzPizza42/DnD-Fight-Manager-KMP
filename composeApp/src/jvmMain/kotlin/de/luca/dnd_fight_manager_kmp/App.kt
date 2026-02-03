@@ -73,7 +73,7 @@ fun App(title: MutableState<String>) {
                     )
                     Text("Kämpfer-Liste")
                     Button(
-                        onClick = { GroupManager.getAllFighters().sortByDescending { it.initiative.value } },
+                        onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
                         content = { Text("Sortieren") },
                         modifier = Modifier.padding(5.dp)
                     )
@@ -111,11 +111,11 @@ fun App(title: MutableState<String>) {
                             state = listState
                         ) {
                             itemsIndexed(
-                                items = GroupManager.getAllFighters(),
+                                items = GroupManager.fighters,
                                 key = { _, fighter: Fighter -> fighter.id }
                             ) { index: Int, fighter: Fighter ->
                                 Box(Modifier.animateItem()) {
-                                    GroupManager.getAllFighters()[index].paintListElement(index)
+                                    GroupManager.fighters[index].paintListElement(index)
                                 }
                             }
                         }
@@ -144,7 +144,7 @@ fun App(title: MutableState<String>) {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintSaveOverlay(GroupManager.getAllFighters(), { showOverlaySave = false }, currentListName)
+                paintSaveOverlay(GroupManager.fighters, { showOverlaySave = false }, currentListName)
             }
         }
         if(showOverlayLoad) {
@@ -153,7 +153,7 @@ fun App(title: MutableState<String>) {
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintLoadOverlay(GroupManager.getAllFighters(), { showOverlayLoad = false }, currentListName)
+                paintLoadOverlay(GroupManager.fighters, { showOverlayLoad = false }, currentListName)
             }
         }
     }

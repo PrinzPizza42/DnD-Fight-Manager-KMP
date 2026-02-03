@@ -2,11 +2,13 @@ package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 
 object GroupManager {
     val groups = mutableStateListOf<Group>()
     val freeGroup = mutableStateOf(Group(name=mutableStateOf("Keine"), color=mutableStateOf(Color.White)))
+    val fighters = getAllFighters()
 
     fun removeGroup(group: Group) {
         for(fighter in group.fighters) {
@@ -22,8 +24,8 @@ object GroupManager {
         groups.add(group)
     }
 
-    fun getAllFighters(): MutableList<Fighter> {
-        val fighters = mutableListOf<Fighter>()
+    fun getAllFighters(): SnapshotStateList<Fighter> {
+        val fighters = mutableStateListOf<Fighter>()
 
         for(fighter in freeGroup.value.fighters) {
             fighters.add(fighter)

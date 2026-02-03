@@ -11,6 +11,7 @@ data class Group(
 ) {
     fun removeFighter(fighter: Fighter) {
         fighters.remove(fighter)
+        GroupManager.fighters.remove(fighter)
 
         println("Removed ${fighter.name} from $name")
     }
@@ -18,6 +19,7 @@ data class Group(
     fun addFighter(fighter: Fighter) {
         fighters.add(fighter)
         fighter.group = mutableStateOf(this@Group)
+        GroupManager.fighters.add(fighter)
 
         println("Added ${fighter.name} to $name")
     }
