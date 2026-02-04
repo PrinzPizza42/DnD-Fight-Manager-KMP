@@ -1,6 +1,7 @@
 package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
@@ -13,9 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.onClick
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
@@ -40,7 +43,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun App(title: MutableState<String>) {
@@ -64,27 +67,51 @@ fun App(title: MutableState<String>) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
-                        onClick = { GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${count++}"))) },
-                        content = { Text("+") },
-                        modifier = Modifier.padding(5.dp)
-                    )
-                    Text("Kämpfer-Liste")
-                    Button(
-                        onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
-                        content = { Text("Sortieren") },
-                        modifier = Modifier.padding(5.dp)
-                    )
-                    Button(
-                        onClick = { Overlay.showOverlay({ paintSaveOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
-                        content = { Text("Speichern") },
-                        modifier = Modifier.padding(5.dp)
-                    )
-                    Button(
-                        onClick = { Overlay.showOverlay({ paintLoadOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
-                        content = { Text("Laden") },
-                        modifier = Modifier.padding(5.dp)
-                    )
+                    // Group management
+                    Row(Modifier
+                        .padding(horizontal = 5.dp)
+                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
+                    ) {
+                        Button(
+                            onClick = { Overlay.showAddGroupOverlay() },
+                            content = { Text("+ Gruppe") },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+
+                    // Fighter management
+                    Row(Modifier
+                        .padding(horizontal = 5.dp)
+                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
+                    ) {
+                        Button(
+                            onClick = { GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${count++}"))) },
+                            content = { Text("+ Kämpfer") },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Button(
+                            onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
+                            content = { Text("Sortieren") },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
+
+                    // Data management
+                    Row(Modifier
+                        .padding(horizontal = 5.dp)
+                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
+                    ) {
+                        Button(
+                            onClick = { Overlay.showOverlay({ paintSaveOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
+                            content = { Text("Speichern") },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        Button(
+                            onClick = { Overlay.showOverlay({ paintLoadOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
+                            content = { Text("Laden") },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                    }
                 }
                 Box {
                     Box(Modifier.background(Color.Gray).fillMaxSize())
@@ -139,10 +166,15 @@ fun App(title: MutableState<String>) {
 
         Overlay.activeOverlay.value?.let { overlayContent ->
             Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.5f))
+                        .onClick {}
+                )
                 overlayContent()
             }
         }

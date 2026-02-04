@@ -13,4 +13,13 @@ object Overlay {
     }
 
     fun closeOverlay() { activeOverlay.value = null }
+
+
+    fun showAddGroupOverlay() {
+        showOverlay({
+            val name = remember { mutableStateOf("") }
+
+            textField(name, "Name")
+        })
+    }
 }

@@ -27,7 +27,6 @@ fun Color.Companion.random(): Color {
     )
 }
 
-
 @Composable
 fun textField(input: MutableState<String>, label: String) {
     val focusManager = LocalFocusManager.current

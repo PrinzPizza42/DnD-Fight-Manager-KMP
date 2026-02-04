@@ -48,44 +48,34 @@ object Data {
     @Composable
     fun paintSaveOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit, currentListName: MutableState<String>) {
         Box(
-            contentAlignment = Alignment.Center
-        ){
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .onClick {}
-                    .background(Color.Black.copy(alpha = 0.3f))
-            )
-            Box(
-                Modifier
-                    .size(500.dp)
-                    .background(Color.White, RoundedCornerShape(10.dp))
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Text("Speicherort: $folder")
+            Modifier
+                .size(500.dp)
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(20.dp)
+        ) {
+            Column {
+                Text("Speicherort: $folder")
 
-                    val fileName = remember { mutableStateOf(currentListName.value) }
+                val fileName = remember { mutableStateOf(currentListName.value) }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                    textField(fileName, "Dateiname (ohne .txt)")
+                textField(fileName, "Dateiname (ohne .txt)")
 
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
-                        Button(
-                            onClick = {
-                                save(fighters, fileName.value)
-                                currentListName.value = fileName.value
-                                onClose()
-                            },
-                            content = { Text("Speichern") },
-                            modifier = Modifier.padding(end = 5.dp)
-                        )
-                        Button(
-                            onClick = { onClose() },
-                            content = { Text("Abbrechen") }
-                        )
-                    }
+                Row(modifier = Modifier.padding(top = 10.dp)) {
+                    Button(
+                        onClick = {
+                            save(fighters, fileName.value)
+                            currentListName.value = fileName.value
+                            onClose()
+                        },
+                        content = { Text("Speichern") },
+                        modifier = Modifier.padding(end = 5.dp)
+                    )
+                    Button(
+                        onClick = { onClose() },
+                        content = { Text("Abbrechen") }
+                    )
                 }
             }
         }
@@ -101,80 +91,68 @@ object Data {
         val fileList = remember { getAvailableFiles().toMutableStateList() }
 
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            Modifier
+                .size(500.dp)
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(20.dp)
         ) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .onClick {}
-            )
+            Column {
+                Text("Lade Datei aus: $folder", modifier = Modifier.padding(bottom = 10.dp))
 
-            Box(
-                Modifier
-                    .size(500.dp)
-                    .background(Color.White, RoundedCornerShape(10.dp))
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Text("Lade Datei aus: $folder", modifier = Modifier.padding(bottom = 10.dp))
+                if (fileList.isEmpty()) {
+                    Text("Keine Dateien gefunden.", color = Color.Gray)
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(vertical = 10.dp)
+                            .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
+                    ) {
+                        items(fileList) { fileName ->
+                            var isHovered by remember { mutableStateOf(false) }
+                            val shadow by animateDpAsState(if(isHovered) 5.dp else 0.dp, tween(200))
 
-                    if (fileList.isEmpty()) {
-                        Text("Keine Dateien gefunden.", color = Color.Gray)
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(vertical = 10.dp)
-                                .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
-                        ) {
-                            items(fileList) { fileName ->
-                                var isHovered by remember { mutableStateOf(false) }
-                                val shadow by animateDpAsState(if(isHovered) 5.dp else 0.dp, tween(200))
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(70.dp)
-                                        .onClick {
-                                            val loadedFighters = load(fileName)
-                                            currentListName.value = fileName.removeSuffix(".txt")
-                                            if (loadedFighters.isNotEmpty()) {
-                                                currentFighters.clear()
-                                                currentFighters.addAll(loadedFighters)
-                                                onClose()
-                                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(70.dp)
+                                    .onClick {
+                                        val loadedFighters = load(fileName)
+                                        currentListName.value = fileName.removeSuffix(".txt")
+                                        if (loadedFighters.isNotEmpty()) {
+                                            currentFighters.clear()
+                                            currentFighters.addAll(loadedFighters)
+                                            onClose()
                                         }
-                                        .padding(5.dp)
-                                        .shadow(shadow, shape = RoundedCornerShape(10.dp))
-                                        .background(Color.LightGray, RoundedCornerShape(10.dp))
-                                        .padding(5.dp)
-                                        .onPointerEvent(PointerEventType.Enter) { isHovered = true }
-                                        .onPointerEvent(PointerEventType.Exit) { isHovered = false }
-                                ) {
-                                    Text("📄 $fileName", modifier = Modifier.weight(1f))
-                                    Button(
-                                        onClick = {
-                                            removeFile(fileName)
-                                            fileList.remove(fileName)
-                                        },
-                                        content = { Text("Löschen") },
-                                        modifier = Modifier.padding(5.dp)
-                                    )
-                                }
+                                    }
+                                    .padding(5.dp)
+                                    .shadow(shadow, shape = RoundedCornerShape(10.dp))
+                                    .background(Color.LightGray, RoundedCornerShape(10.dp))
+                                    .padding(5.dp)
+                                    .onPointerEvent(PointerEventType.Enter) { isHovered = true }
+                                    .onPointerEvent(PointerEventType.Exit) { isHovered = false }
+                            ) {
+                                Text("📄 $fileName", modifier = Modifier.weight(1f))
+                                Button(
+                                    onClick = {
+                                        removeFile(fileName)
+                                        fileList.remove(fileName)
+                                    },
+                                    content = { Text("Löschen") },
+                                    modifier = Modifier.padding(5.dp)
+                                )
                             }
                         }
                     }
+                }
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                    Button(
-                        onClick = { onClose() },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Abbrechen")
-                    }
+                Button(
+                    onClick = { onClose() },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Abbrechen")
                 }
             }
         }
