@@ -96,46 +96,53 @@ object Overlay {
                     Column {
                         Text("Alle Gruppen:")
                         if(GroupManager.groups.isEmpty()) {
-                            Box(Modifier.fillMaxWidth()) {
+                            Box(
+                                Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text("Keine Gruppen vorhanden")
                             }
                         }
-                        LazyColumn(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(vertical = 10.dp)
-                                .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
-                        ) {
-                            items(GroupManager.groups) { group ->
-                                var isHovered by remember { mutableStateOf(false) }
-                                val shadow by animateDpAsState(if(isHovered) 5.dp else 0.dp, tween(200))
+                        else {
+                            LazyColumn(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(vertical = 10.dp)
+                                    .background(Color(0xFFEEEEEE), RoundedCornerShape(5.dp))
+                            ) {
+                                items(GroupManager.groups) { group ->
+                                    var isHovered by remember { mutableStateOf(false) }
+                                    val shadow by animateDpAsState(if(isHovered) 5.dp else 0.dp, tween(200))
 
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(70.dp)
-                                        .padding(5.dp)
-                                        .shadow(shadow, shape = RoundedCornerShape(10.dp))
-                                        .background(Color.LightGray, RoundedCornerShape(10.dp))
-                                        .padding(5.dp)
-                                        .onPointerEvent(PointerEventType.Enter) { isHovered = true }
-                                        .onPointerEvent(PointerEventType.Exit) { isHovered = false },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        Modifier
-                                            .size(20.dp)
-                                            .background(group.color.value, RoundedCornerShape(5.dp))
-                                    )
-                                    Text(group.name.value, modifier = Modifier.weight(1f))
-                                    Text("(${group.fighters.size})")
-                                    Button(
-                                        onClick = {
-                                            GroupManager.removeGroup(group)
-                                        },
-                                        content = { Text("Löschen") },
-                                        modifier = Modifier.padding(5.dp)
-                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(70.dp)
+                                            .padding(5.dp)
+                                            .shadow(shadow, shape = RoundedCornerShape(10.dp))
+                                            .background(Color.LightGray, RoundedCornerShape(10.dp))
+                                            .padding(5.dp)
+                                            .onPointerEvent(PointerEventType.Enter) { isHovered = true }
+                                            .onPointerEvent(PointerEventType.Exit) { isHovered = false },
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            Modifier
+                                                .size(20.dp)
+                                                .background(group.color.value, RoundedCornerShape(5.dp))
+                                        )
+                                        Text(group.name.value, modifier = Modifier.weight(1f))
+                                        Text("(${group.fighters.size})")
+                                        Button(
+                                            onClick = {
+                                                GroupManager.removeGroup(group)
+                                            },
+                                            content = { Text("Löschen") },
+                                            modifier = Modifier.padding(5.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
