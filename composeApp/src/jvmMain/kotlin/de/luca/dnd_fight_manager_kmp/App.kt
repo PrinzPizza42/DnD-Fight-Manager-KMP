@@ -77,6 +77,11 @@ fun App(title: MutableState<String>) {
                             content = { Text("+ Gruppe") },
                             modifier = Modifier.padding(5.dp)
                         )
+                        Button(
+                            onClick = { Overlay.showGroupsOverlay() },
+                            content = { Text("Gruppen") },
+                            modifier = Modifier.padding(5.dp)
+                        )
                     }
 
                     // Fighter management
