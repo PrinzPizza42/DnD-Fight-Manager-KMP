@@ -52,11 +52,9 @@ fun App(title: MutableState<String>) {
         }
 
         var count = 0
-        var showOverlaySave by remember { mutableStateOf(false) }
-        var showOverlayLoad by remember { mutableStateOf(false) }
 
         Box(
-            Modifier.blur(if(showOverlaySave || showOverlayLoad) 3.dp else 0.dp)
+            Modifier.blur(if(Overlay.isActive) 3.dp else 0.dp)
         ) {
             Column {
                 Row(
@@ -78,12 +76,12 @@ fun App(title: MutableState<String>) {
                         modifier = Modifier.padding(5.dp)
                     )
                     Button(
-                        onClick = { showOverlaySave = true },
+                        onClick = { Overlay.showOverlay({ paintSaveOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
                         content = { Text("Speichern") },
                         modifier = Modifier.padding(5.dp)
                     )
                     Button(
-                        onClick = { showOverlayLoad = true },
+                        onClick = { Overlay.showOverlay({ paintLoadOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
                         content = { Text("Laden") },
                         modifier = Modifier.padding(5.dp)
                     )
@@ -138,22 +136,14 @@ fun App(title: MutableState<String>) {
             }
 
         }
-        if (showOverlaySave) {
+
+        Overlay.activeOverlay.value?.let { overlayContent ->
             Box(
                 Modifier
                     .fillMaxSize()
                     .background(Color.Transparent)
             ) {
-                paintSaveOverlay(GroupManager.fighters, { showOverlaySave = false }, currentListName)
-            }
-        }
-        if(showOverlayLoad) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Transparent)
-            ) {
-                paintLoadOverlay(GroupManager.fighters, { showOverlayLoad = false }, currentListName)
+                overlayContent()
             }
         }
     }
