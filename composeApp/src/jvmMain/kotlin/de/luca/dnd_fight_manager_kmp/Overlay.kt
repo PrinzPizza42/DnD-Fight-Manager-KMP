@@ -6,13 +6,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -83,7 +84,7 @@ object Overlay {
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    fun showGroupsOverlay() {
+    fun showAllGroupsOverlay() {
         showOverlay({
             MaterialTheme {
                 Box(
@@ -94,6 +95,11 @@ object Overlay {
                 ) {
                     Column {
                         Text("Alle Gruppen:")
+                        if(GroupManager.groups.isEmpty()) {
+                            Box(Modifier.fillMaxWidth()) {
+                                Text("Keine Gruppen vorhanden")
+                            }
+                        }
                         LazyColumn(
                             modifier = Modifier
                                 .weight(1f)
@@ -113,7 +119,8 @@ object Overlay {
                                         .background(Color.LightGray, RoundedCornerShape(10.dp))
                                         .padding(5.dp)
                                         .onPointerEvent(PointerEventType.Enter) { isHovered = true }
-                                        .onPointerEvent(PointerEventType.Exit) { isHovered = false }
+                                        .onPointerEvent(PointerEventType.Exit) { isHovered = false },
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Box(
                                         Modifier
@@ -121,6 +128,7 @@ object Overlay {
                                             .background(group.color.value, RoundedCornerShape(5.dp))
                                     )
                                     Text(group.name.value, modifier = Modifier.weight(1f))
+                                    Text("(${group.fighters.size})")
                                     Button(
                                         onClick = {
                                             GroupManager.removeGroup(group)
