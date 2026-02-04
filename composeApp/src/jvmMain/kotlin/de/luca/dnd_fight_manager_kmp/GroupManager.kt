@@ -17,7 +17,18 @@ object GroupManager {
         }
         groups.remove(group)
 
-        println("Removed group ${group.name}")
+        println("Removed group ${group.name.value}")
+    }
+
+    fun removeGroupWithAllFighters(group: Group) {
+        val fighterCount = group.fighters.size
+
+        for(fighter in group.fighters) {
+            group.removeFighter(fighter)
+        }
+        groups.remove(group)
+
+        println("Removed group ${group.name.value} and all $fighterCount fighters in it")
     }
 
     fun addGroup(group: Group) {

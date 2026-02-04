@@ -26,10 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 
 object Overlay {
     val activeOverlay = mutableStateOf<(@Composable () -> Unit)?>(null)
@@ -135,25 +137,59 @@ object Overlay {
                                         )
                                         Text(group.name.value, modifier = Modifier.weight(1f))
                                         Text("(${group.fighters.size})")
+
+                                        var showDeletePopup by remember { mutableStateOf(false) }
                                         Button(
                                             onClick = {
-                                                GroupManager.removeGroup(group)
+                                                showDeletePopup = true
                                             },
                                             content = { Text("Löschen") },
                                             modifier = Modifier.padding(5.dp)
                                         )
+
+                                        if(showDeletePopup) {
+                                            Popup(
+                                                onDismissRequest = { showDeletePopup = false }
+                                            ) {
+                                                Column(
+                                                    Modifier
+                                                        .shadow(10.dp)
+                                                        .background(Color.White, RoundedCornerShape(10.dp))
+                                                        .padding(5.dp)
+                                                ) {
+                                                    Text("Auch alle Mitglieder der Gruppe entfernen?")
+                                                    Text("(Wenn nicht sind sie einfach keiner Gruppe mehr zugeordnet)")
+                                                    Row {
+                                                        Button(
+                                                            onClick = {
+                                                                GroupManager.removeGroupWithAllFighters(group)
+                                                                showDeletePopup = false
+                                                            },
+                                                            content = { Text("Ja") },
+                                                            modifier = Modifier.padding(5.dp)
+                                                        )
+                                                        Button(
+                                                            onClick = {
+                                                                GroupManager.removeGroup(group)
+                                                                showDeletePopup = false
+                                                            },
+                                                            content = { Text("Nein") },
+                                                            modifier = Modifier.padding(5.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
 
-                        Row {
-                            Button(
-                                onClick = { closeOverlay() },
-                                content = { Text("Zurück") },
-                                modifier = Modifier.padding(5.dp)
-                            )
-                        }
+                        Button(
+                            onClick = { closeOverlay() },
+                            content = { Text("Zurück") },
+                            modifier = Modifier.padding(5.dp)
+                        )
                     }
                 }
             }
