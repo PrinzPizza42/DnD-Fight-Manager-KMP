@@ -4,9 +4,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
+import kotlin.uuid.ExperimentalUuidApi
 
 object GroupManager {
     val groups = mutableStateListOf<Group>()
+    @OptIn(ExperimentalUuidApi::class)
     val freeGroup = mutableStateOf(Group(name=mutableStateOf("Keine"), color=mutableStateOf(Color.White)))
     val fighters = getAllFighters()
 

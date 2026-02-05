@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import kotlin.uuid.ExperimentalUuidApi
 
 object Overlay {
     val activeOverlay = mutableStateOf<(@Composable () -> Unit)?>(null)
@@ -43,6 +44,7 @@ object Overlay {
 
     fun closeOverlay() { activeOverlay.value = null }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun showAddGroupOverlay() {
         showOverlay({
             Box(
