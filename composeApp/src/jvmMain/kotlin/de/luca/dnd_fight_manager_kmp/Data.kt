@@ -36,12 +36,15 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import java.io.PrintWriter
 
 object Data {
     private val userHome = System.getProperty("user.home")
     private val folder = Paths.get(userHome).resolve("DnD-Fight-Manager-KMP")
 
     private const val SEPARATOR = ";;"
+    private const val GROUP_START = "{{"
+    private const val GROUP_END = "}}"
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -64,7 +67,7 @@ object Data {
                 Row(modifier = Modifier.padding(top = 10.dp)) {
                     Button(
                         onClick = {
-                            save(fighters, fileName.value)
+                            save(fileName.value)
                             currentListName.value = fileName.value
                             onClose()
                         },
@@ -175,7 +178,7 @@ object Data {
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    private fun save(fighters: MutableList<Fighter>, fileName: String) {
+    private fun save(fileName: String) {
         secureFolder()
 
         val finalName = if (fileName.endsWith(".txt")) fileName else "$fileName.txt"
@@ -183,21 +186,47 @@ object Data {
 
         try {
             file.printWriter().use { out ->
-                fighters.forEach { fighter ->
-                    val name = fighter.name.value.replace(SEPARATOR, " ")
-                    val info = fighter.extraInfo.value.replace(SEPARATOR, " ")
-                    val init = fighter.initiative.value.toString()
-                    val id = fighter.id.toString()
+                // Free Group always first
+                saveGroup(GroupManager.freeGroup.value, out)
 
-                    val line = "$id$SEPARATOR$name$SEPARATOR$info$SEPARATOR$init"
-                    out.println(line)
+                // All other groups
+                GroupManager.groups.forEach { group ->
+                    saveGroup(group, out)
                 }
+
             }
             println("Erfolgreich gespeichert unter: ${file.absolutePath}")
         } catch (e: Exception) {
             e.printStackTrace()
             println("Fehler beim Speichern: ${e.message}")
         }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private fun saveGroup(group: Group, out: PrintWriter) {
+        val name = group.name.value.replace(SEPARATOR, " ")
+        val color = group.color.value.toString().replace(SEPARATOR, " ")
+        val uuid = group.uuid.value.toString().replace(SEPARATOR, " ")
+        val groupLine = "$name$SEPARATOR$color$SEPARATOR$uuid"
+        println(groupLine)
+        println(GROUP_START)
+        out.println(groupLine)
+
+        out.println(GROUP_START)
+
+        group.fighters.forEach { fighter ->
+            val name = fighter.name.value.replace(SEPARATOR, " ")
+            val info = fighter.extraInfo.value.replace(SEPARATOR, " ")
+            val init = fighter.initiative.value.toString()
+            val id = fighter.id.toString()
+
+            val fighterLine = "$id$SEPARATOR$name$SEPARATOR$info$SEPARATOR$init"
+            out.println(fighterLine)
+            println(fighterLine)
+        }
+
+        println(GROUP_END)
+        out.println(GROUP_END)
     }
 
     private fun secureFolder() {
