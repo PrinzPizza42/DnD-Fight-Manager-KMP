@@ -16,7 +16,7 @@ data class Group @OptIn(ExperimentalUuidApi::class) constructor(
         fighters.remove(fighter)
         GroupManager.fighters.remove(fighter)
 
-        println("Removed ${fighter.name} from $name")
+        println("Removed ${fighter.name.value} from ${name.value}")
     }
 
     fun addFighter(fighter: Fighter) {
@@ -24,6 +24,6 @@ data class Group @OptIn(ExperimentalUuidApi::class) constructor(
         fighter.group = mutableStateOf(this@Group)
         GroupManager.fighters.add(fighter)
 
-        println("Added ${fighter.name} to $name")
+        println("Added ${fighter.name.value} to ${name.value}")
     }
 }
