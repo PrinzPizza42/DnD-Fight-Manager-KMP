@@ -55,7 +55,7 @@
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
 
           shellHook = ''
-            export JAVA_HOME=${pkgs.jdk}/lib/openjdk
+            export JAVA_HOME=${jdk}/lib/openjdk
             export PATH=$JAVA_HOME/bin:$PATH
             export _JAVA_AWT_WM_NONREPARENTING=1
 
