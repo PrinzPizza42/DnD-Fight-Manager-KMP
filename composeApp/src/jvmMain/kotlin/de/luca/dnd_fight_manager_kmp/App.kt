@@ -36,7 +36,6 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
-@Preview
 fun App(title: MutableState<String>) {
     MaterialTheme {
         val currentListName = remember { mutableStateOf("encounter_1") }
