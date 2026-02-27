@@ -31,9 +31,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import java.io.PrintWriter
@@ -45,10 +47,11 @@ object Data {
     private const val SEPARATOR = ";;"
     private const val GROUP_START = "{{"
     private const val GROUP_END = "}}"
+    private const val COLOR_SEPARATOR = ","
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
-    fun paintSaveOverlay(fighters: MutableList<Fighter>, onClose: () -> Unit, currentListName: MutableState<String>) {
+    fun paintSaveOverlay(onClose: () -> Unit, currentListName: MutableState<String>) {
         Box(
             Modifier
                 .size(500.dp)
@@ -86,7 +89,6 @@ object Data {
     @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
     @Composable
     fun paintLoadOverlay(
-        currentFighters: MutableList<Fighter>,
         onClose: () -> Unit,
         currentListName: MutableState<String>
     ) {
@@ -119,11 +121,11 @@ object Data {
                                     .fillMaxWidth()
                                     .height(70.dp)
                                     .onClick {
-                                        val loadedFighters = load(fileName)
+                                        val loadedGroups = load(fileName)
                                         currentListName.value = fileName.removeSuffix(".txt")
-                                        if (loadedFighters.isNotEmpty()) {
-                                            currentFighters.clear()
-                                            currentFighters.addAll(loadedFighters)
+                                        if (loadedGroups.isNotEmpty()) {
+                                            GroupManager.groups.clear()
+                                            GroupManager.groups.addAll(loadedGroups)
                                             onClose()
                                         }
                                     }
@@ -193,7 +195,6 @@ object Data {
                 GroupManager.groups.forEach { group ->
                     saveGroup(group, out)
                 }
-
             }
             println("Erfolgreich gespeichert unter: ${file.absolutePath}")
         } catch (e: Exception) {
@@ -205,13 +206,18 @@ object Data {
     @OptIn(ExperimentalUuidApi::class)
     private fun saveGroup(group: Group, out: PrintWriter) {
         val name = group.name.value.replace(SEPARATOR, " ")
-        val color = group.color.value.toString().replace(SEPARATOR, " ")
+
+        var color = ""
+        color = "${group.color.value.red}"
+        color = "$color$COLOR_SEPARATOR${group.color.value.green}"
+        color = "$color$COLOR_SEPARATOR${group.color.value.blue}"
+        color = "$color$COLOR_SEPARATOR${group.color.value.alpha}"
+
         val uuid = group.uuid.value.toString().replace(SEPARATOR, " ")
         val groupLine = "$name$SEPARATOR$color$SEPARATOR$uuid"
         println(groupLine)
         println(GROUP_START)
         out.println(groupLine)
-
         out.println(GROUP_START)
 
         group.fighters.forEach { fighter ->
@@ -236,28 +242,76 @@ object Data {
         }
     }
 
-    fun load(fileName: String): List<Fighter> {
+    @OptIn(ExperimentalUuidApi::class)
+    fun load(fileName: String): MutableList<Group> {
         val finalName = if (fileName.endsWith(".txt")) fileName else "$fileName.txt"
         val file = folder.resolve(finalName).toFile()
-        val loadedList = mutableListOf<Fighter>()
+
+        val groupList = mutableListOf<Group>()
+
+        var currentGroup: Group? = null
 
         if (file.exists()) {
             file.forEachLine { line ->
                 val parts = line.split(SEPARATOR)
-                if (parts.size >= 4) {
-                    val name = parts[1]
-                    val info = parts[2]
-                    val init = parts[3].toIntOrNull() ?: 0
 
-                    val fighter = Fighter(
-                        name = mutableStateOf(name),
-                        extraInfo = mutableStateOf(info),
-                        initiative = mutableStateOf(init)
-                    )
-                    loadedList.add(fighter)
+                when(parts.size) {
+                    // Structure elements
+                    1 -> {
+                        when(parts[0]) {
+                            GROUP_START -> {
+                                println("\nGroup load ${currentGroup!!.name.value} start")
+                            }
+                            GROUP_END -> {
+                                if(currentGroup != null) {
+                                    println("Group load ${currentGroup!!.name.value} end\n")
+
+                                    groupList.add(currentGroup!!)
+                                    currentGroup = null
+                                }
+                                else {
+                                    error("Tried adding currentGroup but it was null, this should not be the case")
+                                }
+                            }
+                        }
+                    }
+
+                    // A group
+                    else -> {
+                        // Group head
+                        if(currentGroup == null) {
+                            val name = parts[0]
+                            val rgba = parts[1].split(COLOR_SEPARATOR)
+                            val color = Color(red = rgba[0].toFloat(), green = rgba[1].toFloat(), blue = rgba[2].toFloat(), alpha = rgba[3].toFloat(), colorSpace = ColorSpaces.Srgb)
+
+                            val group = Group(
+                                name = mutableStateOf(name),
+                                color = mutableStateOf(color)
+                            )
+                            currentGroup = group
+                        }
+                        // Group body
+                        else {
+                            for (part in parts) println("- $part")
+
+                            val name = parts[1]
+                            val info = parts[2]
+                            val init = parts[3].toIntOrNull() ?: 0
+
+                            val fighter = Fighter(
+                                name = mutableStateOf(name),
+                                extraInfo = mutableStateOf(info),
+                                initiative = mutableStateOf(init)
+                            )
+
+                            currentGroup!!.addFighter(fighter)
+                        }
+                    }
                 }
             }
         }
-        return loadedList
+
+        println("Loaded ${groupList.size} groups")
+        return groupList
     }
 }

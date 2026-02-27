@@ -30,7 +30,6 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 
@@ -97,12 +96,12 @@ fun App(title: MutableState<String>) {
                         .background(Color.DarkGray, RoundedCornerShape(10.dp))
                     ) {
                         Button(
-                            onClick = { Overlay.showOverlay({ paintSaveOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
+                            onClick = { Overlay.showOverlay({ paintSaveOverlay({ Overlay.closeOverlay() }, currentListName) }) },
                             content = { Text("Speichern") },
                             modifier = Modifier.padding(5.dp)
                         )
                         Button(
-                            onClick = { Overlay.showOverlay({ paintLoadOverlay(GroupManager.fighters, { Overlay.closeOverlay() }, currentListName) }) },
+                            onClick = { Overlay.showOverlay({ paintLoadOverlay({ Overlay.closeOverlay() }, currentListName) }) },
                             content = { Text("Laden") },
                             modifier = Modifier.padding(5.dp)
                         )
