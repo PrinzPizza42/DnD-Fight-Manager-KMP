@@ -57,13 +57,9 @@ object Overlay {
                     textField(name, "Name")
 
                     val color = remember { mutableStateOf(Color.random()) }
+                    val showPopup = remember { mutableStateOf(false) }
 
-                    Box(
-                        Modifier
-                            .size(20.dp)
-                            .background(color.value, RoundedCornerShape(5.dp))
-                    )
-                    // TODO: Add color manipulator with fitting inputs
+                    colorElement(color, showPopup)
 
                     Row {
                         Button(
