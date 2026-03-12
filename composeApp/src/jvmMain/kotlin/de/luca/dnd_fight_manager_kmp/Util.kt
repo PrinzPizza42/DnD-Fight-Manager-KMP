@@ -164,7 +164,7 @@ fun textFieldInt(input: MutableState<Int>, label: String) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun colorElement(
     currentColor: MutableState<Color>,
@@ -172,75 +172,101 @@ fun colorElement(
 ) {
     val color = remember { mutableStateOf(currentColor.value) }
 
-    Box(
-        Modifier
-            .background(currentColor.value, CircleShape)
-            .size(30.dp)
-            .onClick { showPopup.value = !showPopup.value }
+    var isHovered by remember { mutableStateOf(false) }
+    var scale by mutableStateOf(if(isHovered) 1.2f else 1f)
+    var shadow by  mutableStateOf(if(isHovered) 5.dp else 2.dp)
+
+    val animatedScale by animateFloatAsState(
+        targetValue = scale,
+        animationSpec = tween(durationMillis = 250)
+    )
+
+    val animatedShadow by animateDpAsState(
+        targetValue = shadow,
+        animationSpec = tween(durationMillis = 250)
+    )
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
     ) {
-        if(showPopup.value) {
-            Popup(
-                onDismissRequest = { showPopup.value = false }
-            ) {
-                Column(
-                    Modifier
-                        .shadow(10.dp, RoundedCornerShape(10.dp))
-                        .background(Color.White, RoundedCornerShape(10.dp))
-                        .padding(5.dp)
+        Box(
+            Modifier
+                .padding(10.dp)
+                .scale(animatedScale)
+                .shadow(animatedShadow, CircleShape)
+                .background(currentColor.value, CircleShape)
+                .size(30.dp)
+                .onClick { showPopup.value = !showPopup.value }
+                .onPointerEvent(eventType = PointerEventType.Enter) { isHovered = true }
+                .onPointerEvent(eventType = PointerEventType.Exit) { isHovered = false},
+        ) {
+            if(showPopup.value) {
+                Popup(
+                    onDismissRequest = { showPopup.value = false }
                 ) {
-                    Text("Color Picker")
-                    Row {
-                        // Color picker
-                        HsvColorPicker(color)
+                    Column(
+                        Modifier
+                            .shadow(10.dp, RoundedCornerShape(10.dp))
+                            .background(Color.White, RoundedCornerShape(10.dp))
+                            .padding(5.dp)
+                    ) {
+                        Text("Color Picker")
+                        Row {
+                            // Color picker
+                            HsvColorPicker(color)
 
-                        // Basic colors
-                        Column(
-                            Modifier.size(150.dp, 150.dp)
-                        ) {
-                            Row {
-                                standardColorElement(color, Color.White)
-                                standardColorElement(color, Color.Black)
-                                standardColorElement(color, Color.Gray)
+                            // Basic colors
+                            Column(
+                                Modifier.size(150.dp, 150.dp)
+                            ) {
+                                Row {
+                                    standardColorElement(color, Color.White)
+                                    standardColorElement(color, Color.Black)
+                                    standardColorElement(color, Color.Gray)
+                                }
+                                Row {
+                                    standardColorElement(color, Color.Red)
+                                    standardColorElement(color, Color.Green)
+                                    standardColorElement(color, Color.Blue)
+                                }
+                                Row {
+                                    standardColorElement(color, Color.Yellow)
+                                    standardColorElement(color, Color.Cyan)
+                                    standardColorElement(color, Color.Magenta)
+                                }
                             }
-                            Row {
-                                standardColorElement(color, Color.Red)
-                                standardColorElement(color, Color.Green)
-                                standardColorElement(color, Color.Blue)
-                            }
-                            Row {
-                                standardColorElement(color, Color.Yellow)
-                                standardColorElement(color, Color.Cyan)
-                                standardColorElement(color, Color.Magenta)
-                            }
+
+                            // Color element
+                            Box(Modifier
+                                .shadow(2.dp, RoundedCornerShape(10.dp))
+                                .background(color.value, RoundedCornerShape(10.dp))
+                                .size(100.dp, 150.dp)
+                            )
                         }
-
-                        // Color element
-                        Box(Modifier
-                            .shadow(2.dp, RoundedCornerShape(10.dp))
-                            .background(color.value, RoundedCornerShape(10.dp))
-                            .size(100.dp, 150.dp)
-                        )
-                    }
-                    Row {
-                        Button(
-                            onClick = {
-                                currentColor.value = color.value
-                                showPopup.value = false
-                            },
-                            content = { Text("Übernehmen") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Button(
-                            onClick = {
-                                showPopup.value = false
-                            },
-                            content = { Text("Abbrechen") },
-                            modifier = Modifier.padding(5.dp)
-                        )
+                        Row {
+                            Button(
+                                onClick = {
+                                    currentColor.value = color.value
+                                    showPopup.value = false
+                                },
+                                content = { Text("Übernehmen") },
+                                modifier = Modifier.padding(5.dp)
+                            )
+                            Button(
+                                onClick = {
+                                    showPopup.value = false
+                                },
+                                content = { Text("Abbrechen") },
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        }
                     }
                 }
             }
         }
+
+        Text("Zum ändern Kreis anclicken")
     }
 }
 
