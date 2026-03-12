@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
@@ -124,8 +123,8 @@ object Data {
                                         val loadedGroups = load(fileName)
                                         currentListName.value = fileName.removeSuffix(".txt")
                                         if (loadedGroups.isNotEmpty()) {
-                                            GroupManager.groups.clear()
-                                            GroupManager.groups.addAll(loadedGroups)
+                                            GroupManager.deleteEverything()
+                                            GroupManager.addAll(loadedGroups)
                                             onClose()
                                         }
                                     }
@@ -220,7 +219,7 @@ object Data {
         out.println(groupLine)
         out.println(GROUP_START)
 
-        group.fighters.forEach { fighter ->
+        group.fighters.value.forEach { fighter ->
             val name = fighter.name.value.replace(SEPARATOR, " ")
             val info = fighter.extraInfo.value.replace(SEPARATOR, " ")
             val init = fighter.initiative.value.toString()

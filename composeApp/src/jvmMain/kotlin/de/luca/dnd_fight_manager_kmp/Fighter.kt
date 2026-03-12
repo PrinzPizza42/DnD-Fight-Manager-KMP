@@ -84,7 +84,7 @@ data class Fighter(
                             TextField(
                                 modifier = Modifier.width(55.dp),
                                 readOnly = true,
-                                value = "${group.value.name.value[0]}${group.value.name.value[1]}",
+                                value = "${group.value.name.value[0]}${if(group.value.name.value.length >= 2) group.value.name.value[1] else ""}",
                                 onValueChange = {},
                                 colors = ExposedDropdownMenuDefaults.textFieldColors()
                             )
@@ -111,7 +111,7 @@ data class Fighter(
                 Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
                 Box(modifier = Modifier.width(60.dp)) {textFieldInt(initiative, "Initiative:")}
                 Button(
-                    onClick = { delete() },
+                    onClick = { group.value.deleteFighter(this@Fighter) },
                     content = { Text("Entfernen", color = Color.White) },
                     modifier = Modifier.padding(5.dp)
                 )
@@ -123,9 +123,10 @@ data class Fighter(
     fun dropdownMenuGroupElement(group: Group, expanded: MutableState<Boolean>) {
         DropdownMenuItem(
             onClick = {
-                this@Fighter.group.value.removeFighter(this@Fighter)
-                group.addFighter(this@Fighter)
-                this@Fighter.group.value = group
+//                this@Fighter.group.value.transferFighterToFreeGroup(this@Fighter)
+//                group.addFighter(this@Fighter)
+//                this@Fighter.group.value = group
+                GroupManager.transferFighter(this@Fighter.group.value, group, this@Fighter)
 
                 expanded.value = false
             }
@@ -141,9 +142,5 @@ data class Fighter(
                 Text(modifier = Modifier.padding(5.dp), text = group.name.value)
             }
         }
-    }
-
-    fun delete() {
-        group.value.removeFighter(this)
     }
 }

@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -70,7 +68,7 @@ object Overlay {
                     Row {
                         Button(
                             onClick = {
-                                GroupManager.addGroup(Group(name = name, color = color))
+                                GroupManager.add(Group(name = name, color = color))
                                 closeOverlay()
                             },
                             content = { Text("Hinzufügen") },
@@ -138,7 +136,7 @@ object Overlay {
                                                 .background(group.color.value, RoundedCornerShape(5.dp))
                                         )
                                         Text(group.name.value, modifier = Modifier.weight(1f))
-                                        Text("(${group.fighters.size})")
+                                        Text("(${group.fighters.value.size})")
 
                                         var showDeletePopup by remember { mutableStateOf(false) }
                                         Button(
@@ -164,7 +162,7 @@ object Overlay {
                                                     Row {
                                                         Button(
                                                             onClick = {
-                                                                GroupManager.removeGroupWithAllFighters(group)
+                                                                GroupManager.deleteGroupWithAllFighters(group)
                                                                 showDeletePopup = false
                                                             },
                                                             content = { Text("Ja") },
@@ -172,7 +170,7 @@ object Overlay {
                                                         )
                                                         Button(
                                                             onClick = {
-                                                                GroupManager.removeGroup(group)
+                                                                GroupManager.deleteGroupWithoutFighters(group)
                                                                 showDeletePopup = false
                                                             },
                                                             content = { Text("Nein") },
