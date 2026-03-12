@@ -121,9 +121,12 @@ object Data {
                                     .height(70.dp)
                                     .onClick {
                                         val loadedGroups = load(fileName)
+                                        val freeGroup = loadedGroups[0]
+                                        loadedGroups.remove(freeGroup)
                                         currentListName.value = fileName.removeSuffix(".txt")
                                         if (loadedGroups.isNotEmpty()) {
                                             GroupManager.deleteEverything()
+                                            GroupManager.freeGroup.value = freeGroup
                                             GroupManager.addAll(loadedGroups)
                                             onClose()
                                         }
