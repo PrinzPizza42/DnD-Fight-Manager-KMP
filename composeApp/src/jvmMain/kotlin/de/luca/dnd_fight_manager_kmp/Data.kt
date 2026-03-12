@@ -173,7 +173,6 @@ object Data {
     private fun getAvailableFiles(): List<String> {
         secureFolder()
         val files = folder.toFile().listFiles()
-        println("Found files: ${files.size}")
         return files
             ?.filter { it.isFile && it.name.endsWith(".txt") }
             ?.map { it.name.removeSuffix(".txt") }
@@ -217,8 +216,7 @@ object Data {
 
         val uuid = group.uuid.value.toString().replace(SEPARATOR, " ")
         val groupLine = "$name$SEPARATOR$color$SEPARATOR$uuid"
-        println(groupLine)
-        println(GROUP_START)
+
         out.println(groupLine)
         out.println(GROUP_START)
 
@@ -230,10 +228,8 @@ object Data {
 
             val fighterLine = "$id$SEPARATOR$name$SEPARATOR$info$SEPARATOR$init"
             out.println(fighterLine)
-            println(fighterLine)
         }
 
-        println(GROUP_END)
         out.println(GROUP_END)
     }
 
@@ -294,8 +290,6 @@ object Data {
                         }
                         // Group body
                         else {
-                            for (part in parts) println("- $part")
-
                             val name = parts[1]
                             val info = parts[2]
                             val init = parts[3].toIntOrNull() ?: 0
