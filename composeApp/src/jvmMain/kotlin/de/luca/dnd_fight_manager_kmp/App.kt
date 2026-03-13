@@ -15,13 +15,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowLeft
+import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowRight
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -186,33 +194,80 @@ fun fightersList(modifier: Modifier) {
 
 @Composable
 fun bottomBar() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // One Index back
-        Button(
-            onClick = { if(currentIndex >= 1) currentIndex-- else currentIndex = GroupManager.fighters.size - 1 },
-            content = { Text("<-") },
-            modifier = Modifier.padding(5.dp)
-        )
+    var currentRound by remember { mutableStateOf(1) }
 
-        // Info
-        Text(
-            (currentIndex + 1).toString(),
-            Modifier.padding(5.dp, 0.dp)
-        )
-        Text(
-            if(GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
-            Modifier.padding(5.dp, 0.dp)
-        )
+    Row(Modifier.fillMaxWidth()) {
+        Row(
+            Modifier.weight(3f),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            //TODO Add extra functions overlay
+        }
 
-        // One Index forth
-        Button(
-            onClick = { if(currentIndex + 1 < GroupManager.fighters.size) currentIndex++ else currentIndex = 0 },
-            content = { Text("->") },
-            modifier = Modifier.padding(5.dp)
-        )
+        Row(
+            Modifier.weight(5f),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // One Index back
+            Button(
+                onClick = {
+                    if (currentIndex >= 1) currentIndex--
+                    else {
+                        currentIndex = GroupManager.fighters.size - 1
+                        if(currentRound > 1) currentRound--
+                    } },
+                content = { Text("<-") },
+                modifier = Modifier.padding(5.dp)
+            )
+
+            // Info
+            Text(
+                (currentIndex + 1).toString(),
+                Modifier.padding(5.dp, 0.dp)
+            )
+            Text(
+                if (GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
+                Modifier.padding(5.dp, 0.dp)
+            )
+
+            // One Index forth
+            Button(
+                onClick = {
+                    if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
+                    else {
+                        currentIndex = 0
+                        currentRound++
+                    } },
+                content = { Text("->") },
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+
+        Row(
+            Modifier.weight(3f),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Runden")
+            IconButton(
+                onClick = { if(currentRound > 1) currentRound-- },
+                content = { Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
+                    contentDescription = "Zurück"
+                ) },
+                modifier = Modifier.padding(5.dp)
+            )
+            Text(currentRound.toString())
+            IconButton(
+                onClick = { currentRound++ },
+                content = { Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+                    contentDescription = "Vorwärts"
+                ) },
+                modifier = Modifier.padding(5.dp)
+            )
+        }
     }
 }
