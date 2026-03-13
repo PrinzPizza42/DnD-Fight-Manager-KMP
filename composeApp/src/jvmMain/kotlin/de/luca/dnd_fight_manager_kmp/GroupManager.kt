@@ -3,6 +3,7 @@ package de.luca.dnd_fight_manager_kmp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,8 @@ object GroupManager {
     fun addAll(elements: Collection<Group>) {
         groups = groups.addAll(elements)
     }
+
+    var currentIndex by mutableStateOf(0)
 
     @OptIn(ExperimentalUuidApi::class)
     val freeGroup = mutableStateOf(Group(name=mutableStateOf("Keine"), color=mutableStateOf(Color.White)))

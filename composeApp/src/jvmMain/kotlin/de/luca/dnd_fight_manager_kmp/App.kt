@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
+import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -154,7 +154,7 @@ fun fightersList(modifier: Modifier) {
                     key = { _, fighter: Fighter -> fighter.id }
                 ) { index: Int, fighter: Fighter ->
                     Box(Modifier.animateItem()) {
-                        GroupManager.fighters[index].paintListElement(index)
+                        GroupManager.fighters[index].paintListElement(index, isCurrent = (index == currentIndex))
                     }
                 }
             }
@@ -178,8 +178,6 @@ fun fightersList(modifier: Modifier) {
 
 @Composable
 fun bottomBar() {
-    var currentIndex by remember { mutableStateOf(0) }
-
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,

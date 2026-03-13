@@ -2,7 +2,9 @@ package de.luca.dnd_fight_manager_kmp
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,16 +51,20 @@ data class Fighter(
 
     @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class, ExperimentalUuidApi::class)
     @Composable
-    fun paintListElement(index: Int) {
+    fun paintListElement(index: Int, isCurrent: Boolean) {
         MaterialTheme {
             var isHovered by remember { mutableStateOf(false) }
             val shadow by animateDpAsState(if(isHovered) 15.dp else 0.dp, tween(200))
+            val backGroundColor = if(isCurrent) Color.White else Color.LightGray
+            val borderStroke = if (isCurrent) BorderStroke(2.dp, Color.DarkGray) else null
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
                     .shadow(shadow, shape = RoundedCornerShape(10.dp))
-                    .background(Color.LightGray, RoundedCornerShape(10.dp))
+                    .background(backGroundColor, RoundedCornerShape(10.dp))
+                    .then(if(borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(10.dp)) else Modifier)
                     .padding(5.dp)
                     .onPointerEvent(PointerEventType.Enter) { isHovered = true }
                     .onPointerEvent(PointerEventType.Exit) { isHovered = false },
