@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -197,8 +199,14 @@ fun bottomBar() {
         )
 
         // Info
-        Text((currentIndex + 1).toString())
-        Text(if(GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters.get(currentIndex).name.value )
+        Text(
+            (currentIndex + 1).toString(),
+            Modifier.padding(5.dp, 0.dp)
+        )
+        Text(
+            if(GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
+            Modifier.padding(5.dp, 0.dp)
+        )
 
         // One Index forth
         Button(

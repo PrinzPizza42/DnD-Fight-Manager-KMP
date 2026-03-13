@@ -57,21 +57,21 @@ data class Fighter(
     fun paintListElement(index: Int, isCurrent: Boolean) {
         MaterialTheme {
             var isHovered by remember { mutableStateOf(false) }
-            val shadow by animateDpAsState(if(isHovered) 15.dp else 0.dp, tween(200))
-            val backGroundColor = if(isCurrent) lerp(start = Color.Transparent, stop = Color.Magenta, 0.5f) else Color.LightGray
+            val shadow by animateDpAsState(if(isHovered && !isCurrent) 15.dp else 0.dp, tween(200))
+            val backGroundColor = if(isCurrent) lerp(Color.Transparent, Color.hsl(256f, 0.34f, 0.48f), 0.7f) else Color.LightGray
             val animatedBackGroundColor by animateColorAsState(
                 targetValue = backGroundColor,
                 tween(200)
             )
-            val borderStroke = if (isCurrent) BorderStroke(2.dp, Color.DarkGray) else null
+            val borderStroke = if (isCurrent) BorderStroke(2.dp, lerp(start = Color.Transparent, stop = Color.Magenta, 0.8f)) else null
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(5.dp)
+                    .then(if(borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(10.dp)) else Modifier)
                     .shadow(shadow, shape = RoundedCornerShape(10.dp))
                     .background(animatedBackGroundColor, RoundedCornerShape(10.dp))
-                    .then(if(borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(10.dp)) else Modifier)
                     .padding(5.dp)
                     .onPointerEvent(PointerEventType.Enter) { isHovered = true }
                     .onPointerEvent(PointerEventType.Exit) { isHovered = false },
