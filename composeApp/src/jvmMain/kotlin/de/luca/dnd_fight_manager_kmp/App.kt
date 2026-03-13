@@ -139,9 +139,15 @@ fun topBar(currentListName: MutableState<String>) {
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 fun fightersList(modifier: Modifier) {
+
     Box(modifier) {
         Box {
             val listState = rememberLazyListState()
+
+            LaunchedEffect(currentIndex) {
+                listState.animateScrollToItem(currentIndex)
+            }
+
             LazyColumn(
                 Modifier
                     .fillMaxSize()

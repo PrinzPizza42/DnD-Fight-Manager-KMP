@@ -1,5 +1,6 @@
 package de.luca.dnd_fight_manager_kmp
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -33,10 +34,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -55,7 +58,11 @@ data class Fighter(
         MaterialTheme {
             var isHovered by remember { mutableStateOf(false) }
             val shadow by animateDpAsState(if(isHovered) 15.dp else 0.dp, tween(200))
-            val backGroundColor = if(isCurrent) Color.White else Color.LightGray
+            val backGroundColor = if(isCurrent) lerp(start = Color.Transparent, stop = Color.Magenta, 0.5f) else Color.LightGray
+            val animatedBackGroundColor by animateColorAsState(
+                targetValue = backGroundColor,
+                tween(200)
+            )
             val borderStroke = if (isCurrent) BorderStroke(2.dp, Color.DarkGray) else null
 
             Row(
@@ -63,7 +70,7 @@ data class Fighter(
                     .fillMaxWidth()
                     .padding(5.dp)
                     .shadow(shadow, shape = RoundedCornerShape(10.dp))
-                    .background(backGroundColor, RoundedCornerShape(10.dp))
+                    .background(animatedBackGroundColor, RoundedCornerShape(10.dp))
                     .then(if(borderStroke != null) Modifier.border(borderStroke, RoundedCornerShape(10.dp)) else Modifier)
                     .padding(5.dp)
                     .onPointerEvent(PointerEventType.Enter) { isHovered = true }
