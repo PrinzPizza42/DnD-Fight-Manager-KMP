@@ -43,117 +43,16 @@ fun App(title: MutableState<String>) {
             title.value = "DnD-Fight-Manager-KMP - ${currentListName.value}"
         }
 
-        var count = 0
-
         Box(
             Modifier.blur(if(Overlay.isActive) 3.dp else 0.dp)
         ) {
-            Column {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.Gray),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Group management
-                    Row(Modifier
-                        .padding(horizontal = 5.dp)
-                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
-                    ) {
-                        Button(
-                            onClick = { Overlay.showAddGroupOverlay() },
-                            content = { Text("+ Gruppe") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Button(
-                            onClick = { Overlay.showAllGroupsOverlay() },
-                            content = { Text("Gruppen") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
+            Box(Modifier.background(Color.Gray).fillMaxSize())
+            Column(Modifier.fillMaxSize()) {
+                topBar(currentListName)
 
-                    // Fighter management
-                    Row(Modifier
-                        .padding(horizontal = 5.dp)
-                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
-                    ) {
-                        Button(
-                            onClick = { GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${count++}"))) },
-                            content = { Text("+ Kämpfer") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Button(
-                            onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
-                            content = { Text("Sortieren") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
+                fightersList(Modifier.weight(1f))
 
-                    // Data management
-                    Row(Modifier
-                        .padding(horizontal = 5.dp)
-                        .background(Color.DarkGray, RoundedCornerShape(10.dp))
-                    ) {
-                        Button(
-                            onClick = { Overlay.showOverlay({ paintSaveOverlay({ Overlay.closeOverlay() }, currentListName) }) },
-                            content = { Text("Speichern") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Button(
-                            onClick = { Overlay.showOverlay({ paintLoadOverlay({ Overlay.closeOverlay() }, currentListName) }) },
-                            content = { Text("Laden") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                    }
-                }
-                Box {
-                    Box(Modifier.background(Color.Gray).fillMaxSize())
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        Box(
-                            Modifier
-                                .height(15.dp)
-                                .fillMaxWidth()
-                                .background(Color.White)
-                        )
-                    }
-                    Box {
-                        val listState = rememberLazyListState()
-                        LazyColumn(
-                            Modifier
-                                .fillMaxSize()
-                                .background(Color.White, RoundedCornerShape(15.dp))
-                                .padding(0.dp, 10.dp, 0.dp, 10.dp),
-                            state = listState
-                        ) {
-                            itemsIndexed(
-                                items = GroupManager.fighters,
-                                key = { _, fighter: Fighter -> fighter.id }
-                            ) { index: Int, fighter: Fighter ->
-                                Box(Modifier.animateItem()) {
-                                    GroupManager.fighters[index].paintListElement(index)
-                                }
-                            }
-                        }
-                        VerticalScrollbar(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .fillMaxHeight(),
-                            adapter = rememberScrollbarAdapter(scrollState = listState),
-                            style = ScrollbarStyle(
-                                minimalHeight = 16.dp,
-                                thickness = 8.dp,
-                                shape = RoundedCornerShape(4.dp),
-                                hoverDurationMillis = 300,
-                                unhoverColor = Color.Gray,
-                                hoverColor = Color.DarkGray
-                            )
-                        )
-                    }
-                }
+                bottomBar()
             }
 
         }
@@ -172,5 +71,136 @@ fun App(title: MutableState<String>) {
                 overlayContent()
             }
         }
+    }
+}
+
+@Composable
+fun topBar(currentListName: MutableState<String>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.Gray),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Group management
+        Row(Modifier
+            .padding(horizontal = 5.dp)
+            .background(Color.DarkGray, RoundedCornerShape(10.dp))
+        ) {
+            Button(
+                onClick = { Overlay.showAddGroupOverlay() },
+                content = { Text("+ Gruppe") },
+                modifier = Modifier.padding(5.dp)
+            )
+            Button(
+                onClick = { Overlay.showAllGroupsOverlay() },
+                content = { Text("Gruppen") },
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+
+        // Fighter management
+        Row(Modifier
+            .padding(horizontal = 5.dp)
+            .background(Color.DarkGray, RoundedCornerShape(10.dp))
+        ) {
+            Button(
+                onClick = { GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${GroupManager.fighters.size}"))) },
+                content = { Text("+ Kämpfer") },
+                modifier = Modifier.padding(5.dp)
+            )
+            Button(
+                onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
+                content = { Text("Sortieren") },
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+
+        // Data management
+        Row(Modifier
+            .padding(horizontal = 5.dp)
+            .background(Color.DarkGray, RoundedCornerShape(10.dp))
+        ) {
+            Button(
+                onClick = { Overlay.showOverlay({ paintSaveOverlay({ Overlay.closeOverlay() }, currentListName) }) },
+                content = { Text("Speichern") },
+                modifier = Modifier.padding(5.dp)
+            )
+            Button(
+                onClick = { Overlay.showOverlay({ paintLoadOverlay({ Overlay.closeOverlay() }, currentListName) }) },
+                content = { Text("Laden") },
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+@Composable
+fun fightersList(modifier: Modifier) {
+    Box(modifier) {
+        Box {
+            val listState = rememberLazyListState()
+            LazyColumn(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.White, RoundedCornerShape(15.dp))
+                    .padding(0.dp, 10.dp, 0.dp, 10.dp),
+                state = listState
+            ) {
+                itemsIndexed(
+                    items = GroupManager.fighters,
+                    key = { _, fighter: Fighter -> fighter.id }
+                ) { index: Int, fighter: Fighter ->
+                    Box(Modifier.animateItem()) {
+                        GroupManager.fighters[index].paintListElement(index)
+                    }
+                }
+            }
+            VerticalScrollbar(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight(),
+                adapter = rememberScrollbarAdapter(scrollState = listState),
+                style = ScrollbarStyle(
+                    minimalHeight = 16.dp,
+                    thickness = 8.dp,
+                    shape = RoundedCornerShape(4.dp),
+                    hoverDurationMillis = 300,
+                    unhoverColor = Color.Gray,
+                    hoverColor = Color.DarkGray
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun bottomBar() {
+    var currentIndex by remember { mutableStateOf(0) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // One Index back
+        Button(
+            onClick = { if(currentIndex >= 1) currentIndex-- else currentIndex = GroupManager.fighters.size - 1 },
+            content = { Text("<-") },
+            modifier = Modifier.padding(5.dp)
+        )
+
+        // Info
+        Text((currentIndex + 1).toString())
+        Text(if(GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters.get(currentIndex).name.value )
+
+        // One Index forth
+        Button(
+            onClick = { if(currentIndex + 1 < GroupManager.fighters.size) currentIndex++ else currentIndex = 0 },
+            content = { Text("->") },
+            modifier = Modifier.padding(5.dp)
+        )
     }
 }
