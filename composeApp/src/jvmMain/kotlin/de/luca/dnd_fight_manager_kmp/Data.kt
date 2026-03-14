@@ -130,6 +130,9 @@ object Data {
                                             GroupManager.addAll(loadedGroups)
                                             onClose()
                                         }
+
+                                        GroupManager.currentIndex = 0
+                                        GroupManager.currentRound = 1
                                     }
                                     .padding(5.dp)
                                     .shadow(shadow, shape = RoundedCornerShape(10.dp))

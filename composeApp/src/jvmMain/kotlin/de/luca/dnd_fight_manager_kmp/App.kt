@@ -42,6 +42,7 @@ import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
+import de.luca.dnd_fight_manager_kmp.GroupManager.currentRound
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -194,8 +195,6 @@ fun fightersList(modifier: Modifier) {
 
 @Composable
 fun bottomBar() {
-    var currentRound by remember { mutableStateOf(1) }
-
     Row(Modifier.fillMaxWidth()) {
         Row(
             Modifier.weight(3f),
