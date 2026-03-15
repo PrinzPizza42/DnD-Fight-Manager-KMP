@@ -22,6 +22,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.ExposedDropdownMenuDefaults
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
@@ -201,7 +206,7 @@ fun bottomBar() {
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            //TODO Add extra functions overlay
+            extraMenusPopup()
         }
 
         Row(
@@ -209,39 +214,7 @@ fun bottomBar() {
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // One Index back
-            Button(
-                onClick = {
-                    if (currentIndex >= 1) currentIndex--
-                    else {
-                        currentIndex = GroupManager.fighters.size - 1
-                        if(currentRound > 1) currentRound--
-                    } },
-                content = { Text("<-") },
-                modifier = Modifier.padding(5.dp)
-            )
-
-            // Info
-            Text(
-                (currentIndex + 1).toString(),
-                Modifier.padding(5.dp, 0.dp)
-            )
-            Text(
-                if (GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
-                Modifier.padding(5.dp, 0.dp)
-            )
-
-            // One Index forth
-            Button(
-                onClick = {
-                    if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
-                    else {
-                        currentIndex = 0
-                        currentRound++
-                    } },
-                content = { Text("->") },
-                modifier = Modifier.padding(5.dp)
-            )
+            currentFighterManagement()
         }
 
         Row(
@@ -249,24 +222,143 @@ fun bottomBar() {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Runden")
-            IconButton(
-                onClick = { if(currentRound > 1) currentRound-- },
-                content = { Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
-                    contentDescription = "Zurück"
-                ) },
-                modifier = Modifier.padding(5.dp)
-            )
-            Text(currentRound.toString())
-            IconButton(
-                onClick = { currentRound++ },
-                content = { Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-                    contentDescription = "Vorwärts"
-                ) },
-                modifier = Modifier.padding(5.dp)
-            )
+            currentRoundManagement()
         }
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun extraMenusPopup() {
+    val expanded = remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded.value,
+        onExpandedChange = {
+            expanded.value = !expanded.value
+        }
+    ) {
+        Button(content = {Text("Extra Funktionen")}, onClick = {})
+        ExposedDropdownMenu(
+            modifier = Modifier.width(250.dp),
+            expanded = expanded.value,
+            onDismissRequest = {
+                expanded.value = false
+            }
+        ) {
+            // Copy Fighter
+            DropdownMenuItem(
+                onClick = {
+                    println("Copy fighter")
+                    expanded.value = false
+                }
+            ) {
+                Row {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(15.dp)
+                            .background(Color.White, RoundedCornerShape(4.dp))
+                            .padding(vertical = 20.dp)
+                    )
+                    Text(modifier = Modifier.padding(5.dp), text = "Kämpfer kopieren")
+                }
+            }
+            // Notepad
+            DropdownMenuItem(
+                onClick = {
+                    println("Notepad")
+                    expanded.value = false
+                }
+            ) {
+                Row {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(15.dp)
+                            .background(Color.White, RoundedCornerShape(4.dp))
+                            .padding(vertical = 20.dp)
+                    )
+                    Text(modifier = Modifier.padding(5.dp), text = "Notizen öffnen")
+                }
+            }
+            // Templates
+            DropdownMenuItem(
+                onClick = {
+                    println("Templates")
+                    expanded.value = false
+                }
+            ) {
+                Row {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(15.dp)
+                            .background(Color.White, RoundedCornerShape(4.dp))
+                            .padding(vertical = 20.dp)
+                    )
+                    Text(modifier = Modifier.padding(5.dp), text = "Templates verwalten")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun currentFighterManagement() {
+    // One Index back
+    Button(
+        onClick = {
+            if (currentIndex >= 1) currentIndex--
+            else {
+                currentIndex = GroupManager.fighters.size - 1
+                if(currentRound > 1) currentRound--
+            } },
+        content = { Text("<-") },
+        modifier = Modifier.padding(5.dp)
+    )
+
+    // Info
+    Text(
+        (currentIndex + 1).toString(),
+        Modifier.padding(5.dp, 0.dp)
+    )
+    Text(
+        if (GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
+        Modifier.padding(5.dp, 0.dp)
+    )
+
+    // One Index forth
+    Button(
+        onClick = {
+            if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
+            else {
+                currentIndex = 0
+                currentRound++
+            } },
+        content = { Text("->") },
+        modifier = Modifier.padding(5.dp)
+    )
+}
+
+@Composable
+fun currentRoundManagement() {
+    Text("Runden")
+    IconButton(
+        onClick = { if(currentRound > 1) currentRound-- },
+        content = { Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
+            contentDescription = "Zurück"
+        ) },
+        modifier = Modifier.padding(5.dp)
+    )
+    Text(currentRound.toString())
+    IconButton(
+        onClick = { currentRound++ },
+        content = { Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowRight,
+            contentDescription = "Vorwärts"
+        ) },
+        modifier = Modifier.padding(5.dp)
+    )
 }

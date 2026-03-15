@@ -136,11 +136,7 @@ data class Fighter(
     fun dropdownMenuGroupElement(group: Group, expanded: MutableState<Boolean>) {
         DropdownMenuItem(
             onClick = {
-//                this@Fighter.group.value.transferFighterToFreeGroup(this@Fighter)
-//                group.addFighter(this@Fighter)
-//                this@Fighter.group.value = group
                 GroupManager.transferFighter(this@Fighter.group.value, group, this@Fighter)
-
                 expanded.value = false
             }
         ) {
