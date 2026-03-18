@@ -252,7 +252,6 @@ fun extraMenusPopup() {
             // Copy Fighter
             DropdownMenuItem(
                 onClick = {
-                    println("Copy fighter") // open popup instead of overlay with only scrollable list of all fighters and a copy button next to them
                     showFighterPopup.value = true
                     expanded.value = false
                 }
