@@ -152,4 +152,8 @@ data class Fighter(
             }
         }
     }
+
+    fun copy(): Fighter {
+        return Fighter(name, extraInfo, initiative, group)
+    }
 }

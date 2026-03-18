@@ -18,7 +18,7 @@ data class Group @OptIn(ExperimentalUuidApi::class) constructor(
         fighters = mutableStateOf(fighters.value.remove(fighter))
     }
 
-    fun fightersAdd(fighter: Fighter) {
+    private fun fightersAdd(fighter: Fighter) {
         fighters = mutableStateOf(fighters.value.add(fighter))
     }
 
