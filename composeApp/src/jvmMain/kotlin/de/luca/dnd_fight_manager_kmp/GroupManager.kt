@@ -29,6 +29,7 @@ object GroupManager {
 
     var currentIndex by mutableStateOf(0)
     var currentRound by mutableStateOf(1)
+    var notepad by mutableStateOf("")
 
     @OptIn(ExperimentalUuidApi::class)
     val freeGroup = mutableStateOf(Group(name=mutableStateOf("Keine"), color=mutableStateOf(Color.White)))

@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.TextField
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material3.Button
@@ -41,6 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
@@ -232,8 +240,10 @@ fun bottomBar() {
 fun extraMenusPopup() {
     val expanded = remember { mutableStateOf(false) }
     val showFighterPopup = remember { mutableStateOf(false) }
+    val showNotepadPopup = remember { mutableStateOf(false) }
 
     if(showFighterPopup.value) copyFighterPopUp(showFighterPopup)
+    if(showNotepadPopup.value) notepadPopUp(showNotepadPopup)
 
     ExposedDropdownMenuBox(
         expanded = expanded.value,
@@ -270,7 +280,8 @@ fun extraMenusPopup() {
             // Notepad
             DropdownMenuItem(
                 onClick = {
-                    println("Notepad") // open popup with text field and buttons to adjust size of the popup. Maybe moveable and anchorable too? Notes are safed per save and integrated into GroupManager, if no notes are in a save file just assume it is ""
+                    // open popup with text field and buttons to adjust size of the popup. Maybe moveable and anchorable too? Notes are safed per save and integrated into GroupManager, if no notes are in a save file just assume it is ""
+                    showNotepadPopup.value = true
                     expanded.value = false
                 }
             ) {
@@ -344,8 +355,67 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { showFighterPopup.value = false },
-                content = { Text("Fertig") }
-            )        }
+                content = { Text("Schließen") }
+            ) }
+    }
+}
+
+@Composable
+fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
+    var height by remember { mutableStateOf(500.dp) }
+    var width by remember { mutableStateOf(500.dp) }
+    val focusManager = LocalFocusManager.current
+
+    Popup(
+        onDismissRequest = { showNotepadPopup.value = false },
+        alignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .size(width, height)
+                .shadow(5.dp)
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+        ) {
+            Row(
+                Modifier.padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Notizen:")
+                Box(Modifier.weight(1f))
+                Button(
+                    modifier = Modifier.width(150.dp),
+                    onClick = { showNotepadPopup.value = false },
+                    content = { Text("Schließen") }
+                )
+            }
+
+            OutlinedTextField(
+                value = GroupManager.notepad,
+                onValueChange = { text ->
+                    GroupManager.notepad = text
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Escape -> {
+                                focusManager.clearFocus()
+                                true
+                            }
+
+                            Key.Backspace -> false
+                            else -> true
+                        }
+                    } else {
+                        false
+                    }
+                },
+                singleLine = false
+            )
+        }
     }
 }
 
