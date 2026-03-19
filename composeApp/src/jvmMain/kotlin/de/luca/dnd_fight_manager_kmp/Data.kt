@@ -47,6 +47,7 @@ object Data {
     private const val GROUP_START = "{{"
     private const val GROUP_END = "}}"
     private const val COLOR_SEPARATOR = ","
+    private const val notepadSTART = "Notepad:"
 
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -124,12 +125,11 @@ object Data {
                                         val freeGroup = loadedGroups[0]
                                         loadedGroups.remove(freeGroup)
                                         currentListName.value = fileName.removeSuffix(".txt")
-                                        if (loadedGroups.isNotEmpty()) {
-                                            GroupManager.deleteEverything()
-                                            GroupManager.freeGroup.value = freeGroup
-                                            GroupManager.addAll(loadedGroups)
-                                            onClose()
-                                        }
+                                        loadedGroups.isNotEmpty()
+                                        GroupManager.deleteEverything()
+                                        GroupManager.freeGroup.value = freeGroup
+                                        GroupManager.addAll(loadedGroups)
+                                        onClose()
 
                                         GroupManager.currentIndex = 0
                                         GroupManager.currentRound = 1
@@ -199,6 +199,12 @@ object Data {
                 GroupManager.groups.forEach { group ->
                     saveGroup(group, out)
                 }
+
+                // Notepad always last
+                out.println(notepadSTART)
+                GroupManager.notepad.lines().forEach { line ->
+                    out.println("= $line")
+                }
             }
             println("Erfolgreich gespeichert unter: ${file.absolutePath}")
         } catch (e: Exception) {
@@ -251,65 +257,80 @@ object Data {
         val groupList = mutableListOf<Group>()
 
         var currentGroup: Group? = null
+        var notepad = ""
+        var inNotepad = false
 
         if (file.exists()) {
             file.forEachLine { line ->
-                val parts = line.split(SEPARATOR)
-
-                when(parts.size) {
-                    // Structure elements
-                    1 -> {
-                        when(parts[0]) {
-                            GROUP_START -> {
-                                println("\nGroup load ${currentGroup!!.name.value} start")
-                            }
-                            GROUP_END -> {
-                                if(currentGroup != null) {
-                                    println("Group load ${currentGroup!!.name.value} end\n")
-
-                                    groupList.add(currentGroup!!)
-                                    currentGroup = null
-                                }
-                                else {
-                                    error("Tried adding currentGroup but it was null, this should not be the case")
-                                }
-                            }
-                        }
+                if(inNotepad) {
+                    try {
+                        notepad = "$notepad\n${line.subSequence(2, line.length)}"
+                    } catch (e: IndexOutOfBoundsException) {
+                        e.printStackTrace()
+                        println("Could not read line: $line")
                     }
+                }
+                else {
+                    val parts = line.split(SEPARATOR)
+                    when(parts.size) {
+                        // Structure elements
+                        1 -> {
+                            when(parts[0]) {
+                                GROUP_START -> {
+                                    println("\nGroup load ${currentGroup!!.name.value} start")
+                                }
+                                GROUP_END -> {
+                                    if(currentGroup != null) {
+                                        println("Group load ${currentGroup!!.name.value} end\n")
 
-                    // A group
-                    else -> {
-                        // Group head
-                        if(currentGroup == null) {
-                            val name = parts[0]
-                            val rgba = parts[1].split(COLOR_SEPARATOR)
-                            val color = Color(red = rgba[0].toFloat(), green = rgba[1].toFloat(), blue = rgba[2].toFloat(), alpha = rgba[3].toFloat(), colorSpace = ColorSpaces.Srgb)
-
-                            val group = Group(
-                                name = mutableStateOf(name),
-                                color = mutableStateOf(color)
-                            )
-                            currentGroup = group
+                                        groupList.add(currentGroup!!)
+                                        currentGroup = null
+                                    }
+                                    else {
+                                        error("Tried adding currentGroup but it was null, this should not be the case")
+                                    }
+                                }
+                                notepadSTART -> {
+                                    inNotepad = true
+                                }
+                            }
                         }
-                        // Group body
-                        else {
-                            val name = parts[1]
-                            val info = parts[2]
-                            val init = parts[3].toIntOrNull() ?: 0
 
-                            val fighter = Fighter(
-                                name = mutableStateOf(name),
-                                extraInfo = mutableStateOf(info),
-                                initiative = mutableStateOf(init)
-                            )
+                        // A group
+                        else -> {
+                            // Group head
+                            if(currentGroup == null) {
+                                val name = parts[0]
+                                val rgba = parts[1].split(COLOR_SEPARATOR)
+                                val color = Color(red = rgba[0].toFloat(), green = rgba[1].toFloat(), blue = rgba[2].toFloat(), alpha = rgba[3].toFloat(), colorSpace = ColorSpaces.Srgb)
 
-                            currentGroup!!.addFighter(fighter)
+                                val group = Group(
+                                    name = mutableStateOf(name),
+                                    color = mutableStateOf(color)
+                                )
+                                currentGroup = group
+                            }
+                            // Group body
+                            else {
+                                val name = parts[1]
+                                val info = parts[2]
+                                val init = parts[3].toIntOrNull() ?: 0
+
+                                val fighter = Fighter(
+                                    name = mutableStateOf(name),
+                                    extraInfo = mutableStateOf(info),
+                                    initiative = mutableStateOf(init)
+                                )
+
+                                currentGroup!!.addFighter(fighter)
+                            }
                         }
                     }
                 }
             }
         }
 
+        GroupManager.notepad = notepad
         println("Loaded ${groupList.size} groups")
         return groupList
     }

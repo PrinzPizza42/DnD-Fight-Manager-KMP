@@ -51,6 +51,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
@@ -163,7 +164,6 @@ fun topBar(currentListName: MutableState<String>) {
 @OptIn(ExperimentalUuidApi::class)
 @Composable
 fun fightersList(modifier: Modifier) {
-
     Box(modifier) {
         Box {
             val listState = rememberLazyListState()
@@ -368,7 +368,8 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
 
     Popup(
         onDismissRequest = { showNotepadPopup.value = false },
-        alignment = Alignment.Center
+        alignment = Alignment.Center,
+        properties = PopupProperties(focusable = true)
     ) {
         Column(
             Modifier
@@ -399,20 +400,18 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                 modifier = Modifier
                     .fillMaxSize()
                     .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when (event.key) {
-                            Key.Escape -> {
-                                focusManager.clearFocus()
-                                true
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Escape -> {
+                                    focusManager.clearFocus()
+                                    true
+                                }
+                                else -> false
                             }
-
-                            Key.Backspace -> false
-                            else -> true
+                        } else {
+                            false
                         }
-                    } else {
-                        false
-                    }
-                },
+                    },
                 singleLine = false
             )
         }
