@@ -1,27 +1,49 @@
+# DnD Fight Manager KMP
+
+A Desktop application built with **Kotlin Multiplatform** and **Compose Multiplatform** to manage Dungeons & Dragons (DnD) encounters. It helps Game Masters (GMs) easily track combat rounds, manage fighter initiatives, and organize groups of monsters and players.
+
+## Features
+
+- **Encounter Management:** Track your encounters and switch between different fight setups.
+- **Group Management:** Add and organize groups of fighters for quick setup.
+- **Fighter Management:** Add individual fighters, track their stats, and automatically sort them by initiative.
+- **Turn Tracking:** Easily navigate through the initiative order. The app keeps track of the current fighter and automatically increments the round counter when a full round is completed.
+- **Save & Load:** Persist your encounter data by saving and loading it, so you never lose your progress during a session.
+- **Notepad:** A built-in notepad for keeping track of encounter-specific notes or GM secrets.
+- **Fighter Cloning:** Quickly copy existing fighters to manage swarms or groups of identical enemies.
+
+## Technology Stack
+
+- [Kotlin Multiplatform (KMP)](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
+- [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/)
+- Desktop (JVM) Target
+
+## Project Structure
+
 This is a Kotlin Multiplatform project targeting Desktop (JVM).
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+* `composeApp/src` contains the application code.
+  - `commonMain` is for code that’s common for all targets.
+  - `jvmMain` is the Desktop (JVM) specific part.
 
-### Build and Run Desktop (JVM) Application
+## Build and Run
 
-To build and run the development version of the desktop app, use the run configuration from the run widget
-in your IDE’s toolbar or run it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:run
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:run
-  ```
+To build and run the development version of the desktop app, use the run configuration from the run widget in your IDE’s toolbar or run it directly from the terminal:
 
----
+### On macOS/Linux
+```shell
+./gradlew :composeApp:run
+```
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+### On Windows
+```shell
+.\gradlew.bat :composeApp:run
+```
+
+## Packaging
+
+You can package the application into native distributions (like `.dmg` for macOS, `.msi` for Windows, and `.deb` for Linux).
+
+```shell
+./gradlew :composeApp:packageDistributionForCurrentOS
+```
