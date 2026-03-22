@@ -40,6 +40,7 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import de.luca.dnd_fight_manager_kmp.Data.SEPARATOR
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -155,5 +156,15 @@ data class Fighter(
 
     fun copy(): Fighter {
         return Fighter(name, extraInfo, initiative, group)
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    override fun toString(): String {
+        val name = name.value.replace(SEPARATOR, " ")
+        val info = extraInfo.value.replace(SEPARATOR, " ")
+        val init = initiative.value.toString()
+        val id = id.toString()
+
+        return "$id$SEPARATOR$name$SEPARATOR$info$SEPARATOR$init"
     }
 }

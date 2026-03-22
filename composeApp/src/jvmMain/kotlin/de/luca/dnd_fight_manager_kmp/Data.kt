@@ -42,8 +42,10 @@ import java.io.PrintWriter
 object Data {
     private val userHome = System.getProperty("user.home")
     private val folder = Paths.get(userHome).resolve("DnD-Fight-Manager-KMP")
+    private val globalSettingsFolder = folder.resolve("global_settings")
+    private const val templateFileName = "templates.txt"
 
-    private const val SEPARATOR = ";;"
+    const val SEPARATOR = ";;"
     private const val GROUP_START = "{{"
     private const val GROUP_END = "}}"
     private const val COLOR_SEPARATOR = ","
@@ -174,7 +176,7 @@ object Data {
     }
 
     private fun getAvailableFiles(): List<String> {
-        secureFolder()
+        secureFolders()
         val files = folder.toFile().listFiles()
         return files
             ?.filter { it.isFile && it.name.endsWith(".txt") }
@@ -185,7 +187,7 @@ object Data {
 
     @OptIn(ExperimentalUuidApi::class)
     private fun save(fileName: String) {
-        secureFolder()
+        secureFolders()
 
         val finalName = if (fileName.endsWith(".txt")) fileName else "$fileName.txt"
         val file = folder.resolve(finalName).toFile()
@@ -230,22 +232,20 @@ object Data {
         out.println(GROUP_START)
 
         group.fighters.value.forEach { fighter ->
-            val name = fighter.name.value.replace(SEPARATOR, " ")
-            val info = fighter.extraInfo.value.replace(SEPARATOR, " ")
-            val init = fighter.initiative.value.toString()
-            val id = fighter.id.toString()
-
-            val fighterLine = "$id$SEPARATOR$name$SEPARATOR$info$SEPARATOR$init"
-            out.println(fighterLine)
+            out.println(fighter.toString())
         }
 
         out.println(GROUP_END)
     }
 
-    private fun secureFolder() {
+    private fun secureFolders() {
         if (!folder.exists()) {
             folder.toFile().mkdirs()
             println("Ordner erstellt: $folder")
+        }
+        if(!globalSettingsFolder.exists()) {
+            globalSettingsFolder.toFile().mkdirs()
+            println("Ordner erstellt: $globalSettingsFolder")
         }
     }
 
@@ -312,17 +312,7 @@ object Data {
                             }
                             // Group body
                             else {
-                                val name = parts[1]
-                                val info = parts[2]
-                                val init = parts[3].toIntOrNull() ?: 0
-
-                                val fighter = Fighter(
-                                    name = mutableStateOf(name),
-                                    extraInfo = mutableStateOf(info),
-                                    initiative = mutableStateOf(init)
-                                )
-
-                                currentGroup!!.addFighter(fighter)
+                                currentGroup!!.addFighter(getFighterFromLine(line))
                             }
                         }
                     }
@@ -333,5 +323,59 @@ object Data {
         GroupManager.notepad = notepad
         println("Loaded ${groupList.size} groups")
         return groupList
+    }
+
+    fun loadTemplates(): MutableList<Fighter> {
+        secureFolders()
+
+        val templates = mutableListOf<Fighter>()
+        val file = globalSettingsFolder.resolve(templateFileName).toFile()
+
+        if(!file.exists()) println("Could not load templates because file does not exist")
+        else {
+            file.forEachLine { line ->
+                try {
+                    templates.add(getFighterFromLine(line))
+                } catch (e: Exception) {
+                    println("Could not create fighter from line: $line")
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        return templates
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun saveTemplates(templates:List<Fighter>) {
+        secureFolders()
+
+        val file = globalSettingsFolder.resolve(templateFileName).toFile()
+
+        try {
+            file.printWriter().use { out ->
+                templates.forEach { fighter ->
+                    out.println(fighter.toString())
+                }
+            }
+            println("Erfolgreich templates gespeichert unter: ${file.absolutePath}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Fehler beim Speichern: ${e.message}")
+        }
+    }
+
+    fun getFighterFromLine(line: String): Fighter {
+        val parts = line.split(SEPARATOR)
+
+        val name = parts[1]
+        val info = parts[2]
+        val init = parts[3].toIntOrNull() ?: 0
+
+        return Fighter(
+            name = mutableStateOf(name),
+            extraInfo = mutableStateOf(info),
+            initiative = mutableStateOf(init)
+        )
     }
 }

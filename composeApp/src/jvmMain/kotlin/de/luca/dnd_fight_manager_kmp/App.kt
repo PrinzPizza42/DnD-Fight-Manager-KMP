@@ -29,7 +29,6 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material3.Button
@@ -241,9 +240,11 @@ fun extraMenusPopup() {
     val expanded = remember { mutableStateOf(false) }
     val showFighterPopup = remember { mutableStateOf(false) }
     val showNotepadPopup = remember { mutableStateOf(false) }
+    val showTemplatesPopup = remember { mutableStateOf(false) }
 
     if(showFighterPopup.value) copyFighterPopUp(showFighterPopup)
     if(showNotepadPopup.value) notepadPopUp(showNotepadPopup)
+    if(showTemplatesPopup.value) templatesPopUp(showTemplatesPopup)
 
     ExposedDropdownMenuBox(
         expanded = expanded.value,
@@ -280,7 +281,6 @@ fun extraMenusPopup() {
             // Notepad
             DropdownMenuItem(
                 onClick = {
-                    // open popup with text field and buttons to adjust size of the popup. Maybe moveable and anchorable too? Notes are safed per save and integrated into GroupManager, if no notes are in a save file just assume it is ""
                     showNotepadPopup.value = true
                     expanded.value = false
                 }
@@ -299,7 +299,8 @@ fun extraMenusPopup() {
             // Templates
             DropdownMenuItem(
                 onClick = {
-                    println("Templates") // open popup with safe and load button. On safe show list popup with list of all fighters scrollable and clickable. On load show popup with all saves. Saves should be in a new subfolder "templates"
+                    // open popup with safe and load button. On safe show list popup with list of all fighters scrollable and clickable. On load show popup with all saves. Saves should be in a new subfolder "templates"
+                    showTemplatesPopup.value = true
                     expanded.value = false
                 }
             ) {
@@ -413,6 +414,100 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                         }
                     },
                 singleLine = false
+            )
+        }
+    }
+}
+
+@Composable
+fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
+    val templates = Data.loadTemplates()
+    val popupState = remember { mutableStateOf(0) } // 0 = managen, 1 = addTemplate
+    var width by remember { mutableStateOf(300.dp) }
+    var height by remember { mutableStateOf(400.dp) }
+
+    Popup(
+        onDismissRequest = { showTemplatesPopup.value = false },
+        alignment = Alignment.Center
+    ) {
+        Column(
+            Modifier
+                .size(width, height)
+                .shadow(5.dp)
+                .background(Color.White, RoundedCornerShape(10.dp))
+                .padding(10.dp)
+        ) {
+            when (popupState.value) {
+                0 -> {
+                    Row {
+                        Text("Templates managen:", Modifier.padding(bottom = 8.dp))
+                        Button(
+                            onClick = { popupState.value = 1 },
+                            content = { Text("Hinzufügen") }
+                        )
+                    }
+                    LazyColumn(Modifier.weight(1f)) {
+                        items(templates) { fighter: Fighter ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(fighter.name.value)
+                                Button(
+                                    onClick = { GroupManager.freeGroup.value.addFighter(fighter.copy()) },
+                                    content = { Text("Nutzen") }
+                                )
+                                Button(
+                                    onClick = {
+                                        templates.remove(fighter)
+                                        Data.saveTemplates(templates)
+                                    },
+                                    content = { Text("Löschen") }
+                                )
+                            }
+                        }
+                    }
+                }
+                1 -> {
+                    Row {
+                        Text("Templates managen:", Modifier.padding(bottom = 8.dp))
+                        Button(
+                            onClick = { popupState.value = 0 },
+                            content = { Text("Zurück") }
+                        )
+                    }
+                    LazyColumn(Modifier.weight(1f)) {
+                        items(GroupManager.fighters) { fighter: Fighter ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(fighter.name.value)
+                                Button(
+                                    onClick = {
+                                        templates.add(fighter)
+                                        Data.saveTemplates(templates)
+                                        popupState.value = 0
+                                    },
+                                    content = { Text("Hinzufügen") }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { showTemplatesPopup.value = false },
+                content = { Text("Schließen") }
             )
         }
     }
