@@ -41,7 +41,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "DnD-Fight-Manager-KMP"
-            packageVersion = "1.2.0"
+            packageVersion = "1.3.0"
 
             windows {
                 iconFile.set(project.file("src/jvmMain/composeResources/drawable/icon.ico"))
