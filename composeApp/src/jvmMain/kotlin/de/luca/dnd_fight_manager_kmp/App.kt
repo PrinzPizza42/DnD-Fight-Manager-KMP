@@ -304,7 +304,6 @@ fun extraMenusPopup() {
             // Templates
             DropdownMenuItem(
                 onClick = {
-                    // open popup with safe and load button. On safe show list popup with list of all fighters scrollable and clickable. On load show popup with all saves. Saves should be in a new subfolder "templates"
                     showTemplatesPopup.value = true
                     expanded.value = false
                 }
@@ -318,6 +317,24 @@ fun extraMenusPopup() {
                             .padding(vertical = 20.dp)
                     )
                     Text(modifier = Modifier.padding(5.dp), text = "Templates verwalten")
+                }
+            }
+            // Clear all
+            DropdownMenuItem(
+                onClick = {
+                    expanded.value = false
+                    GroupManager.deleteEverything()
+                }
+            ) {
+                Row {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(15.dp)
+                            .background(Color.White, RoundedCornerShape(4.dp))
+                            .padding(vertical = 20.dp)
+                    )
+                    Text(modifier = Modifier.padding(5.dp), text = "Kämpfer- und Gruppenliste leeren")
                 }
             }
         }
