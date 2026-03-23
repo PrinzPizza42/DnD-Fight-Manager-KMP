@@ -44,7 +44,13 @@ compose.desktop {
             packageVersion = "1.3.0"
 
             windows {
-                iconFile.set(project.file("src/jvmMain/composeResources/drawable/icon.ico"))
+                iconFile.set(project.file("src/jvmMain/composeResources/files/icon.ico"))
+                menuGroup = "DnD-Fight-Manager-KMP"
+                shortcut = true
+            }
+
+            linux {
+                iconFile.set(project.file("src/jvmMain/composeResources/files/icon.ico"))
                 menuGroup = "DnD-Fight-Manager-KMP"
                 shortcut = true
             }
