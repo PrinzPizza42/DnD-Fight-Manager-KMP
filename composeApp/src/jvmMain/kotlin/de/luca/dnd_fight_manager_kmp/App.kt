@@ -421,7 +421,7 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
 
 @Composable
 fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
-    val templates = Data.loadTemplates()
+    val templates = remember { Data.loadTemplates().toMutableStateList() }
     val popupState = remember { mutableStateOf(0) } // 0 = managen, 1 = addTemplate
     var width by remember { mutableStateOf(300.dp) }
     var height by remember { mutableStateOf(400.dp) }
