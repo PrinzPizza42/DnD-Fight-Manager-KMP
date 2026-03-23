@@ -69,6 +69,7 @@ object Data {
 
                 textField(fileName, "Dateiname (ohne .txt)")
 
+                Box(Modifier.weight(1f))
                 Row(modifier = Modifier.padding(top = 10.dp)) {
                     Button(
                         onClick = {
@@ -77,10 +78,12 @@ object Data {
                             onClose()
                         },
                         content = { Text("Speichern") },
-                        modifier = Modifier.padding(end = 5.dp)
+                        modifier = Modifier.padding(5.dp)
                     )
+                    Box(Modifier.weight(1f))
                     Button(
                         onClick = { onClose() },
+                        Modifier.padding(5.dp),
                         content = { Text("Abbrechen") }
                     )
                 }
@@ -106,7 +109,14 @@ object Data {
                 Text("Lade Datei aus: $folder", modifier = Modifier.padding(bottom = 10.dp))
 
                 if (fileList.isEmpty()) {
-                    Text("Keine Dateien gefunden.", color = Color.Gray)
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Keine Dateien gefunden.", color = Color.Gray)
+                    }
                 } else {
                     LazyColumn(
                         modifier = Modifier
@@ -157,13 +167,13 @@ object Data {
                     }
                 }
 
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Button(
-                    onClick = { onClose() },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Abbrechen")
+                Row {
+                    Box(Modifier.weight(1f))
+                    Button(
+                        onClick = { onClose() },
+                        Modifier.padding(5.dp),
+                        content = { Text("Abbrechen") },
+                    )
                 }
             }
         }

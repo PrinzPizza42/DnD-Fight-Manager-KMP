@@ -60,7 +60,7 @@ object Overlay {
                     val showPopup = remember { mutableStateOf(false) }
 
                     colorElement(color, showPopup)
-
+                    Box(Modifier.weight(1f))
                     Row {
                         Button(
                             onClick = {
@@ -70,6 +70,7 @@ object Overlay {
                             content = { Text("Hinzufügen") },
                             modifier = Modifier.padding(5.dp)
                         )
+                        Box(Modifier.weight(1f))
                         Button(
                             onClick = { closeOverlay() },
                             content = { Text("Abbrechen") },
@@ -180,12 +181,14 @@ object Overlay {
                                 }
                             }
                         }
-
-                        Button(
-                            onClick = { closeOverlay() },
-                            content = { Text("Zurück") },
-                            modifier = Modifier.padding(5.dp)
-                        )
+                        Row {
+                            Box(Modifier.weight(1f))
+                            Button(
+                                onClick = { closeOverlay() },
+                                content = { Text("Zurück") },
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        }
                     }
                 }
             }
