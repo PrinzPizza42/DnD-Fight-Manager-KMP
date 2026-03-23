@@ -155,7 +155,12 @@ data class Fighter(
     }
 
     fun copy(): Fighter {
-        return Fighter(name, extraInfo, initiative, group)
+        return Fighter(
+            mutableStateOf(name.value),
+            mutableStateOf(extraInfo.value),
+            mutableStateOf(initiative.value),
+            mutableStateOf(group.value)
+        )
     }
 
     @OptIn(ExperimentalUuidApi::class)
