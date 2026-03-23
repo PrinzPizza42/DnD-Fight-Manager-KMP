@@ -22,7 +22,12 @@ import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -121,13 +126,16 @@ data class Fighter(
                     }
                 }
                 Text("${index + 1}", modifier = Modifier.width(35.dp), textAlign = TextAlign.Center)
-                Box(modifier = Modifier.width(200.dp)) {textField(name, "Name:")}
-                Box(modifier = Modifier.weight(1f)) {textField(extraInfo, "Info:")}
-                Box(modifier = Modifier.width(60.dp)) {textFieldInt(initiative, "Initiative:")}
-                Button(
+                textField(name, "Name:", modifier = Modifier.width(200.dp))
+                textField(extraInfo, "Info:", modifier = Modifier.weight(1f))
+                textFieldInt(initiative, "Initiative:", modifier = Modifier.width(60.dp))
+                IconButton(
                     onClick = { group.value.deleteFighter(this@Fighter) },
-                    content = { Text("Entfernen", color = Color.White) },
-                    modifier = Modifier.padding(5.dp)
+                    content = { Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Entfernen"
+                    ) },
+                    modifier = Modifier.padding(8.dp)
                 )
             }
         }

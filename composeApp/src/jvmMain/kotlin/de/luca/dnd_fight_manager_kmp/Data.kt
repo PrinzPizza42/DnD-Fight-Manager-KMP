@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,13 @@ import kotlin.io.path.exists
 import kotlin.uuid.ExperimentalUuidApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.filled.FilePresent
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -67,7 +75,7 @@ object Data {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                textField(fileName, "Dateiname (ohne .txt)")
+                textField(fileName, "Dateiname (ohne .txt)", Modifier.fillMaxWidth())
 
                 Box(Modifier.weight(1f))
                 Row(modifier = Modifier.padding(top = 10.dp)) {
@@ -151,16 +159,23 @@ object Data {
                                     .background(Color.LightGray, RoundedCornerShape(10.dp))
                                     .padding(5.dp)
                                     .onPointerEvent(PointerEventType.Enter) { isHovered = true }
-                                    .onPointerEvent(PointerEventType.Exit) { isHovered = false }
+                                    .onPointerEvent(PointerEventType.Exit) { isHovered = false },
+                                Arrangement.Center,
+                                Alignment.CenterVertically
                             ) {
-                                Text("📄 $fileName", modifier = Modifier.weight(1f))
-                                Button(
+                                Icon(imageVector = Icons.Default.FileOpen, contentDescription = "File", Modifier.padding(horizontal = 10.dp))
+                                Text(fileName)
+                                Box(Modifier.weight(1f))
+                                IconButton(
                                     onClick = {
                                         removeFile(fileName)
                                         fileList.remove(fileName)
                                     },
-                                    content = { Text("Löschen") },
-                                    modifier = Modifier.padding(5.dp)
+                                    content = { Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Löschen"
+                                    ) },
+                                    modifier = Modifier.padding(8.dp)
                                 )
                             }
                         }

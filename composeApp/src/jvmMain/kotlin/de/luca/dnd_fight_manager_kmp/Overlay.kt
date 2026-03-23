@@ -13,7 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +59,7 @@ object Overlay {
                 Column {
                     val name = remember { mutableStateOf("") }
 
-                    textField(name, "Name")
+                    textField(name, "Name", Modifier.fillMaxWidth())
 
                     val color = remember { mutableStateOf(Color.random()) }
                     val showPopup = remember { mutableStateOf(false) }
@@ -129,6 +134,7 @@ object Overlay {
                                     ) {
                                         Box(
                                             Modifier
+                                                .padding(horizontal = 10.dp)
                                                 .size(20.dp)
                                                 .background(group.color.value, RoundedCornerShape(5.dp))
                                         )
@@ -136,11 +142,13 @@ object Overlay {
                                         Text("(${group.fighters.value.size})")
 
                                         var showDeletePopup by remember { mutableStateOf(false) }
-                                        Button(
-                                            onClick = {
-                                                showDeletePopup = true
-                                            },
-                                            content = { Text("Löschen") },
+
+                                        IconButton(
+                                            onClick = { showDeletePopup = true },
+                                            content = { Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Löschen"
+                                            ) },
                                             modifier = Modifier.padding(5.dp)
                                         )
 

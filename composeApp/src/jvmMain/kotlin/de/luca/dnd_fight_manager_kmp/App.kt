@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.Button
@@ -53,6 +54,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -214,7 +216,7 @@ fun fightersList(modifier: Modifier) {
 fun bottomBar() {
     Row(Modifier.fillMaxWidth()) {
         Row(
-            Modifier.weight(3f),
+            Modifier.weight(3f).padding(5.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -366,9 +368,13 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(fighter.name.value)
-                        Button(
+                        IconButton(
                             onClick = { fighter.group.value.addFighter(fighter.copy()) },
-                            content = { Text("Kopieren") }
+                            content = { Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = "Kopieren"
+                            ) },
+                            modifier = Modifier.padding(8.dp)
                         )
                     }
                 }
@@ -574,16 +580,23 @@ fun currentFighterManagement() {
             else {
                 currentIndex = GroupManager.fighters.size - 1
                 if(currentRound > 1) currentRound--
-            } },
-        content = { Text("<-") },
+            }
+        },
+        content = { Icon(
+            imageVector = Icons.AutoMirrored.Default.ArrowLeft,
+            contentDescription = "One index back"
+        ) },
         modifier = Modifier.padding(5.dp)
     )
 
     // Info
-    Text(
-        (currentIndex + 1).toString(),
-        Modifier.padding(5.dp, 0.dp)
-    )
+    if(GroupManager.fighters.getOrNull(currentIndex) != null) {
+        Text(
+            (currentIndex + 1).toString(),
+            Modifier.padding(5.dp, 0.dp),
+            fontStyle = FontStyle.Italic,
+        )
+    }
     Text(
         if (GroupManager.fighters.getOrNull(currentIndex) == null) "Liste ist leer" else GroupManager.fighters[currentIndex].name.value,
         Modifier.padding(5.dp, 0.dp)
@@ -596,8 +609,12 @@ fun currentFighterManagement() {
             else {
                 currentIndex = 0
                 currentRound++
-            } },
-        content = { Text("->") },
+            }
+        },
+        content = { Icon(
+            imageVector = Icons.AutoMirrored.Default.ArrowRight,
+            contentDescription = "One index forth"
+        ) },
         modifier = Modifier.padding(5.dp)
     )
 }
