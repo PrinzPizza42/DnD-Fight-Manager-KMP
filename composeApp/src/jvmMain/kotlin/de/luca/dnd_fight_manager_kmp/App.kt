@@ -31,6 +31,11 @@ import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -439,11 +444,19 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
         ) {
             when (popupState.value) {
                 0 -> {
-                    Row {
-                        Text("Templates managen:", Modifier.padding(bottom = 8.dp))
-                        Button(
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Templates:", Modifier.padding(bottom = 8.dp))
+                        Box(Modifier.weight(1f))
+                        IconButton(
                             onClick = { popupState.value = 1 },
-                            content = { Text("Hinzufügen") }
+                            content = { Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Hinzufügen"
+                            ) },
+                            modifier = Modifier.padding(8.dp)
                         )
                     }
                     LazyColumn(Modifier.weight(1f)) {
@@ -452,31 +465,48 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                horizontalArrangement = Arrangement.Start,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(fighter.name.value)
-                                Button(
+                                Box(Modifier.weight(1f))
+                                IconButton(
                                     onClick = { GroupManager.freeGroup.value.addFighter(fighter.copy()) },
-                                    content = { Text("Nutzen") }
+                                    content = { Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Nutzen"
+                                    ) },
+                                    modifier = Modifier.padding(5.dp)
                                 )
-                                Button(
+                                IconButton(
                                     onClick = {
                                         templates.remove(fighter)
                                         Data.saveTemplates(templates)
                                     },
-                                    content = { Text("Löschen") }
+                                    content = { Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Löschen"
+                                    ) },
+                                    modifier = Modifier.padding(5.dp)
                                 )
                             }
                         }
                     }
                 }
                 1 -> {
-                    Row {
-                        Text("Templates managen:", Modifier.padding(bottom = 8.dp))
-                        Button(
+                    Row(
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Templates:", Modifier.padding(bottom = 8.dp))
+                        Box(Modifier.weight(1f))
+                        IconButton(
                             onClick = { popupState.value = 0 },
-                            content = { Text("Zurück") }
+                            content = { Icon(
+                                imageVector = Icons.AutoMirrored.Default.KeyboardBackspace,
+                                contentDescription = "Zurück"
+                            ) },
+                            modifier = Modifier.padding(8.dp)
                         )
                     }
                     LazyColumn(Modifier.weight(1f)) {
@@ -485,17 +515,22 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                horizontalArrangement = Arrangement.Start,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(fighter.name.value)
-                                Button(
+                                Box(Modifier.weight(1f))
+                                IconButton(
                                     onClick = {
                                         templates.add(fighter)
                                         Data.saveTemplates(templates)
                                         popupState.value = 0
                                     },
-                                    content = { Text("Hinzufügen") }
+                                    content = { Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Hinzufügen"
+                                    ) },
+                                    modifier = Modifier.padding(5.dp)
                                 )
                             }
                         }
