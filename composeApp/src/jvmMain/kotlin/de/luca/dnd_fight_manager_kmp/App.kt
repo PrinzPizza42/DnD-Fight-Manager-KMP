@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowRight
 import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Start
@@ -356,9 +357,22 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                 .background(Color.White, RoundedCornerShape(10.dp))
                 .padding(10.dp)
         ) {
-            Text("Kämpfer kopieren:", Modifier.padding(bottom = 10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Kämpfer kopieren", Modifier.padding(bottom = 10.dp))
+                Box(Modifier.weight(1f))
+                IconButton(
+                    onClick = { showFighterPopup.value = false },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Schließen"
+                        )
+                    },
+                    modifier = Modifier.padding(5.dp)
+                )
+            }
 
-            if(GroupManager.fighters.isEmpty()) {
+            if (GroupManager.fighters.isEmpty()) {
                 Box(
                     Modifier
                         .weight(1f)
@@ -367,8 +381,7 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                 ) {
                     Text("Keine Kämpfer gefunden", color = Color.Gray)
                 }
-            }
-            else {
+            } else {
                 LazyColumn(Modifier.weight(1f)) {
                     items(GroupManager.fighters) { fighter: Fighter ->
                         Row(
@@ -381,10 +394,12 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                             Text(fighter.name.value)
                             IconButton(
                                 onClick = { fighter.group.value.addFighter(fighter.copy()) },
-                                content = { Icon(
-                                    imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = "Kopieren"
-                                ) },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Default.ContentCopy,
+                                        contentDescription = "Kopieren"
+                                    )
+                                },
                                 modifier = Modifier.padding(8.dp)
                             )
                         }
@@ -392,11 +407,7 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { showFighterPopup.value = false },
-                content = { Text("Schließen") }
-            ) }
+        }
     }
 }
 
@@ -423,12 +434,17 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Notizen:")
+                Text("Notizen")
                 Box(Modifier.weight(1f))
-                Button(
-                    modifier = Modifier.width(150.dp),
+                IconButton(
                     onClick = { showNotepadPopup.value = false },
-                    content = { Text("Schließen") }
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Schließen"
+                        )
+                    },
+                    modifier = Modifier.padding(5.dp)
                 )
             }
 
@@ -476,23 +492,25 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                 .background(Color.White, RoundedCornerShape(10.dp))
                 .padding(10.dp)
         ) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Templates", Modifier.padding(bottom = 8.dp))
+                Box(Modifier.weight(1f))
+                IconButton(
+                    onClick = { showTemplatesPopup.value = false },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Schließen"
+                        )
+                    },
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
             when (popupState.value) {
                 0 -> {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Templates:", Modifier.padding(bottom = 8.dp))
-                        Box(Modifier.weight(1f))
-                        IconButton(
-                            onClick = { popupState.value = 1 },
-                            content = { Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Hinzufügen"
-                            ) },
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
                     LazyColumn(Modifier.weight(1f)) {
                         items(templates) { fighter: Fighter ->
                             Row(
@@ -528,21 +546,6 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                     }
                 }
                 1 -> {
-                    Row(
-                        horizontalArrangement = Arrangement.Start,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Templates:", Modifier.padding(bottom = 8.dp))
-                        Box(Modifier.weight(1f))
-                        IconButton(
-                            onClick = { popupState.value = 0 },
-                            content = { Icon(
-                                imageVector = Icons.AutoMirrored.Default.KeyboardBackspace,
-                                contentDescription = "Zurück"
-                            ) },
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
                     if(GroupManager.fighters.isEmpty()) {
                         Box(
                             Modifier
@@ -585,11 +588,25 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
             }
 
             Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { showTemplatesPopup.value = false },
-                content = { Text("Schließen") }
-            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                when (popupState.value) {
+                    0 -> {
+                        Button(
+                            onClick = { popupState.value = 1 },
+                            content = { Text("Neues Template hinzufügen") }
+                        )
+                    }
+                    1 -> {
+                        Button(
+                            onClick = { popupState.value = 0 },
+                            content = { Icon(Icons.AutoMirrored.Default.ArrowLeft, "Zurück") }
+                        )
+                    }
+                }
+            }
         }
     }
 }

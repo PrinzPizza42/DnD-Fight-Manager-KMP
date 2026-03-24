@@ -104,7 +104,19 @@ object Overlay {
                         .padding(20.dp)
                 ) {
                     Column {
-                        Text("Alle Gruppen:")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Alle Gruppen")
+                            Box(Modifier.weight(1f))
+                            IconButton(
+                                onClick = { closeOverlay() },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Schließen"
+                                    )
+                                }
+                            )
+                        }
                         if(GroupManager.groups.isEmpty()) {
                             Box(
                                 Modifier
@@ -172,14 +184,6 @@ object Overlay {
                                     }
                                 }
                             }
-                        }
-                        Row {
-                            Box(Modifier.weight(1f))
-                            Button(
-                                onClick = { closeOverlay() },
-                                content = { Text("Zurück") },
-                                modifier = Modifier.padding(5.dp)
-                            )
                         }
                     }
                 }

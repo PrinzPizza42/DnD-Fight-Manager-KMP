@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.FilePresent
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import de.luca.dnd_fight_manager_kmp.Overlay.closeOverlay
 import java.io.PrintWriter
 
 object Data {
@@ -70,11 +72,23 @@ object Data {
                 .padding(20.dp)
         ) {
             Column {
-                BasicTextField(
-                    value = "Speicherort: $folder",
-                    onValueChange = {},
-                    readOnly = true,
-                )
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    BasicTextField(
+                        value = "Speicherort: $folder",
+                        onValueChange = {},
+                        readOnly = true,
+                    )
+                    Box(Modifier.weight(1f))
+                    IconButton(
+                        onClick = { onClose() },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Schließen"
+                            )
+                        }
+                    )
+                }
 
                 val fileName = remember { mutableStateOf(currentListName.value) }
 
@@ -83,7 +97,7 @@ object Data {
                 textField(fileName, "Dateiname (ohne .txt)", Modifier.fillMaxWidth())
 
                 Box(Modifier.weight(1f))
-                Row(modifier = Modifier.padding(top = 10.dp)) {
+                Row(modifier = Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                     Button(
                         onClick = {
                             save(fileName.value)
@@ -92,12 +106,6 @@ object Data {
                         },
                         content = { Text("Speichern") },
                         modifier = Modifier.padding(5.dp)
-                    )
-                    Box(Modifier.weight(1f))
-                    Button(
-                        onClick = { onClose() },
-                        Modifier.padding(5.dp),
-                        content = { Text("Abbrechen") }
                     )
                 }
             }
@@ -119,12 +127,24 @@ object Data {
                 .padding(20.dp)
         ) {
             Column {
-                BasicTextField(
-                    value = "Lade Datei aus: $folder",
-                    onValueChange = {},
-                    readOnly = true,
-                    modifier = Modifier.padding(bottom = 10.dp)
-                )
+                Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                    BasicTextField(
+                        value = "Lade Datei aus: $folder",
+                        onValueChange = {},
+                        readOnly = true,
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+                    Box(Modifier.weight(1f))
+                    IconButton(
+                        onClick = { closeOverlay() },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Schließen"
+                            )
+                        }
+                    )
+                }
 
                 if (fileList.isEmpty()) {
                     Box(
@@ -190,15 +210,6 @@ object Data {
                             }
                         }
                     }
-                }
-
-                Row {
-                    Box(Modifier.weight(1f))
-                    Button(
-                        onClick = { onClose() },
-                        Modifier.padding(5.dp),
-                        content = { Text("Abbrechen") },
-                    )
                 }
             }
         }
