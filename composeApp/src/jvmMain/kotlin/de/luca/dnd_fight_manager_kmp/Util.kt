@@ -266,7 +266,7 @@ fun colorElement(
             }
         }
 
-        Text("Zum ändern Kreis anclicken")
+        Text("Zum ändern Kreis anklicken")
     }
 }
 

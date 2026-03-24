@@ -29,6 +29,7 @@ import kotlin.io.path.exists
 import kotlin.uuid.ExperimentalUuidApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -69,7 +70,11 @@ object Data {
                 .padding(20.dp)
         ) {
             Column {
-                Text("Speicherort: $folder")
+                BasicTextField(
+                    value = "Speicherort: $folder",
+                    onValueChange = {},
+                    readOnly = true,
+                )
 
                 val fileName = remember { mutableStateOf(currentListName.value) }
 
@@ -114,7 +119,12 @@ object Data {
                 .padding(20.dp)
         ) {
             Column {
-                Text("Lade Datei aus: $folder", modifier = Modifier.padding(bottom = 10.dp))
+                BasicTextField(
+                    value = "Lade Datei aus: $folder",
+                    onValueChange = {},
+                    readOnly = true,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
 
                 if (fileList.isEmpty()) {
                     Box(

@@ -10,18 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,6 +40,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlin.uuid.ExperimentalUuidApi
 
 object Overlay {
@@ -106,7 +112,7 @@ object Overlay {
                                     .fillMaxWidth(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text("Keine Gruppen vorhanden")
+                                Text("Keine Gruppen gefunden", color = Color.Gray)
                             }
                         }
                         else {
@@ -141,10 +147,20 @@ object Overlay {
                                         Text(group.name.value, modifier = Modifier.weight(1f))
                                         Text("(${group.fighters.value.size})")
 
-                                        var showDeletePopup by remember { mutableStateOf(false) }
-
+                                        val showEditGroupPopup = remember { mutableStateOf(false) }
                                         IconButton(
-                                            onClick = { showDeletePopup = true },
+                                            onClick = { showEditGroupPopup.value = true },
+                                            content = { Icon(
+                                                imageVector = Icons.Default.Edit,
+                                                contentDescription = "Editieren"
+                                            ) },
+                                            modifier = Modifier.padding(5.dp)
+                                        )
+                                        if(showEditGroupPopup.value) editGroupPopup(showEditGroupPopup, group)
+
+                                        val showDeletePopup = remember { mutableStateOf(false) }
+                                        IconButton(
+                                            onClick = { showDeletePopup.value = true },
                                             content = { Icon(
                                                 imageVector = Icons.Default.Delete,
                                                 contentDescription = "Löschen"
@@ -152,39 +168,7 @@ object Overlay {
                                             modifier = Modifier.padding(5.dp)
                                         )
 
-                                        if(showDeletePopup) {
-                                            Popup(
-                                                onDismissRequest = { showDeletePopup = false }
-                                            ) {
-                                                Column(
-                                                    Modifier
-                                                        .shadow(10.dp)
-                                                        .background(Color.White, RoundedCornerShape(10.dp))
-                                                        .padding(5.dp)
-                                                ) {
-                                                    Text("Auch alle Mitglieder der Gruppe entfernen?")
-                                                    Text("(Wenn nicht sind sie einfach keiner Gruppe mehr zugeordnet)")
-                                                    Row {
-                                                        Button(
-                                                            onClick = {
-                                                                GroupManager.deleteGroupWithAllFighters(group)
-                                                                showDeletePopup = false
-                                                            },
-                                                            content = { Text("Ja") },
-                                                            modifier = Modifier.padding(5.dp)
-                                                        )
-                                                        Button(
-                                                            onClick = {
-                                                                GroupManager.deleteGroupWithoutFighters(group)
-                                                                showDeletePopup = false
-                                                            },
-                                                            content = { Text("Nein") },
-                                                            modifier = Modifier.padding(5.dp)
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        if(showDeletePopup.value) deleteGroupPopup(showDeletePopup, group)
                                     }
                                 }
                             }
@@ -201,5 +185,91 @@ object Overlay {
                 }
             }
         })
+    }
+
+    @Composable
+    fun editGroupPopup(showEditGroupPopup: MutableState<Boolean>, group: Group) {
+        Popup(
+            onDismissRequest = { showEditGroupPopup.value = false },
+            alignment = Alignment.Center,
+            properties = PopupProperties(focusable = true)
+        ) {
+            Column(
+                Modifier
+                    .shadow(5.dp, shape = RoundedCornerShape(10.dp))
+                    .width(350.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(5.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(group.name.value, modifier = Modifier.padding(5.dp))
+                    Box(Modifier.weight(1f))
+                    IconButton(
+                        onClick = { showEditGroupPopup.value = false },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Schließen"
+                            )
+                        },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
+
+                val name = remember { mutableStateOf(group.name.value) }
+                Row {
+                    textField(name, "Name", Modifier.width(280.dp))
+                    IconButton(
+                        onClick = { group.name.value = name.value },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Übernehmen"
+                            )
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+
+                colorElement(group.color)
+            }
+        }
+    }
+
+    @Composable
+    fun deleteGroupPopup(showDeletePopup: MutableState<Boolean>, group: Group) {
+        Popup(
+            onDismissRequest = { showDeletePopup.value = false }
+        ) {
+            Column(
+                Modifier
+                    .shadow(10.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(5.dp)
+            ) {
+                Text("Auch alle Mitglieder der Gruppe entfernen?")
+                Text("(Wenn nicht sind sie einfach keiner Gruppe mehr zugeordnet)")
+                Row {
+                    Button(
+                        onClick = {
+                            GroupManager.deleteGroupWithAllFighters(group)
+                            showDeletePopup.value = false
+                        },
+                        content = { Text("Ja") },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                    Button(
+                        onClick = {
+                            GroupManager.deleteGroupWithoutFighters(group)
+                            showDeletePopup.value = false
+                        },
+                        content = { Text("Nein") },
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
+            }
+        }
     }
 }

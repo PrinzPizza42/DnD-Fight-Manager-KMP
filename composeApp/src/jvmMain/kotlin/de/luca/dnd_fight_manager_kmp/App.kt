@@ -358,28 +358,39 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
         ) {
             Text("Kämpfer kopieren:", Modifier.padding(bottom = 10.dp))
 
-            LazyColumn(Modifier.weight(1f)) {
-                items(GroupManager.fighters) { fighter: Fighter ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(fighter.name.value)
-                        IconButton(
-                            onClick = { fighter.group.value.addFighter(fighter.copy()) },
-                            content = { Icon(
-                                imageVector = Icons.Default.ContentCopy,
-                                contentDescription = "Kopieren"
-                            ) },
-                            modifier = Modifier.padding(8.dp)
-                        )
+            if(GroupManager.fighters.isEmpty()) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Keine Kämpfer gefunden", color = Color.Gray)
+                }
+            }
+            else {
+                LazyColumn(Modifier.weight(1f)) {
+                    items(GroupManager.fighters) { fighter: Fighter ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(fighter.name.value)
+                            IconButton(
+                                onClick = { fighter.group.value.addFighter(fighter.copy()) },
+                                content = { Icon(
+                                    imageVector = Icons.Default.ContentCopy,
+                                    contentDescription = "Kopieren"
+                                ) },
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(8.dp))
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -532,29 +543,41 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                             modifier = Modifier.padding(8.dp)
                         )
                     }
-                    LazyColumn(Modifier.weight(1f)) {
-                        items(GroupManager.fighters) { fighter: Fighter ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(fighter.name.value)
-                                Box(Modifier.weight(1f))
-                                IconButton(
-                                    onClick = {
-                                        templates.add(fighter)
-                                        Data.saveTemplates(templates)
-                                        popupState.value = 0
-                                    },
-                                    content = { Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Hinzufügen"
-                                    ) },
-                                    modifier = Modifier.padding(5.dp)
-                                )
+                    if(GroupManager.fighters.isEmpty()) {
+                        Box(
+                            Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Keine Kämpfer gefunden", color = Color.Gray)
+                        }
+                    }
+                    else {
+                        LazyColumn(Modifier.weight(1f)) {
+                            items(GroupManager.fighters) { fighter: Fighter ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.Start,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(fighter.name.value)
+                                    Box(Modifier.weight(1f))
+                                    IconButton(
+                                        onClick = {
+                                            templates.add(fighter)
+                                            Data.saveTemplates(templates)
+                                            popupState.value = 0
+                                        },
+                                        content = { Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = "Hinzufügen"
+                                        ) },
+                                        modifier = Modifier.padding(5.dp)
+                                    )
+                                }
                             }
                         }
                     }
