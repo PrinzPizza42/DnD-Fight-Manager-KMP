@@ -10,7 +10,9 @@ A Desktop application built with **Kotlin Multiplatform** and **Compose Multipla
 - **Turn Tracking:** Easily navigate through the initiative order. The app keeps track of the current fighter and automatically increments the round counter when a full round is completed.
 - **Save & Load:** Persist your encounter data by saving and loading it, so you never lose your progress during a session.
 - **Notepad:** A built-in notepad for keeping track of encounter-specific notes or GM secrets.
+- **Clear All Data:** Reset the entire application (without touching the saves) by clearing all fighters and groups.
 - **Fighter Cloning:** Quickly copy existing fighters to manage swarms or groups of identical enemies.
+- **Templates Management:** Create, manage, and utilize fighter templates to quickly add pre-configured fighters to any encounter.
 
 ## Technology Stack
 
