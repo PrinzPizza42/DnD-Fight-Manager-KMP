@@ -3,6 +3,7 @@ package de.luca.dnd_fight_manager_kmp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -63,8 +65,24 @@ object Overlay {
                     .padding(20.dp)
             ) {
                 Column {
-                    val name = remember { mutableStateOf("") }
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Neue Gruppe hinzufügen")
+                        Box(Modifier.weight(1f))
+                        IconButton(
+                            onClick = { closeOverlay() },
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Schließen"
+                                )
+                            }
+                        )
+                    }
 
+                    val name = remember { mutableStateOf("") }
                     textField(name, "Name", Modifier.fillMaxWidth())
 
                     val color = remember { mutableStateOf(Color.random()) }
@@ -72,19 +90,17 @@ object Overlay {
 
                     colorElement(color, showPopup)
                     Box(Modifier.weight(1f))
-                    Row {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.Bottom,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         Button(
                             onClick = {
                                 GroupManager.add(Group(name = name, color = color))
                                 closeOverlay()
                             },
                             content = { Text("Hinzufügen") },
-                            modifier = Modifier.padding(5.dp)
-                        )
-                        Box(Modifier.weight(1f))
-                        Button(
-                            onClick = { closeOverlay() },
-                            content = { Text("Abbrechen") },
                             modifier = Modifier.padding(5.dp)
                         )
                     }

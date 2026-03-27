@@ -76,7 +76,7 @@ object Data {
                     BasicTextField(
                         value = "Speicherort: $folder",
                         onValueChange = {},
-                        readOnly = true,
+                        readOnly = true
                     )
                     Box(Modifier.weight(1f))
                     IconButton(
@@ -131,8 +131,7 @@ object Data {
                     BasicTextField(
                         value = "Lade Datei aus: $folder",
                         onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier.padding(bottom = 10.dp)
+                        readOnly = true
                     )
                     Box(Modifier.weight(1f))
                     IconButton(
