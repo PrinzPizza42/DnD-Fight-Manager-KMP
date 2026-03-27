@@ -20,8 +20,13 @@ import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
@@ -209,9 +214,23 @@ fun colorElement(
                         Modifier
                             .shadow(10.dp, RoundedCornerShape(10.dp))
                             .background(Color.White, RoundedCornerShape(10.dp))
+                            .size(420.dp, 365.dp)
                             .padding(5.dp)
                     ) {
-                        Text("Color Picker")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Color Picker")
+                            Box(Modifier.weight(1f))
+                            IconButton(
+                                onClick = { showPopup.value = false },
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Schließen"
+                                    )
+                                },
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                         Row {
                             // Color picker
                             HsvColorPicker(color)
@@ -244,20 +263,16 @@ fun colorElement(
                                 .size(100.dp, 150.dp)
                             )
                         }
-                        Row {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Button(
                                 onClick = {
                                     currentColor.value = color.value
                                     showPopup.value = false
                                 },
                                 content = { Text("Übernehmen") },
-                                modifier = Modifier.padding(5.dp)
-                            )
-                            Button(
-                                onClick = {
-                                    showPopup.value = false
-                                },
-                                content = { Text("Abbrechen") },
                                 modifier = Modifier.padding(5.dp)
                             )
                         }
