@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -83,10 +84,15 @@ object Overlay {
                     }
 
                     val name = remember { mutableStateOf("") }
-                    textField(name, "Name", Modifier.fillMaxWidth())
-
                     val color = remember { mutableStateOf(Color.random()) }
                     val showPopup = remember { mutableStateOf(false) }
+
+                    textField(name, "Name", Modifier.fillMaxWidth(),
+                        {
+                            GroupManager.add(Group(name = name, color = color))
+                            closeOverlay()
+                        }
+                    )
 
                     colorElement(color, showPopup)
                     Box(Modifier.weight(1f))
@@ -100,7 +106,13 @@ object Overlay {
                                 GroupManager.add(Group(name = name, color = color))
                                 closeOverlay()
                             },
-                            content = { Text("Hinzufügen") },
+                            content = {
+                                Text("Hinzufügen")
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
+                                    contentDescription = "Enter"
+                                )
+                            },
                             modifier = Modifier.padding(5.dp)
                         )
                     }
@@ -240,7 +252,7 @@ object Overlay {
 
                 val name = remember { mutableStateOf(group.name.value) }
                 Row {
-                    textField(name, "Name", Modifier.width(280.dp))
+                    textField(name, "Name", Modifier.width(280.dp), { group.name.value = name.value })
                     IconButton(
                         onClick = { group.name.value = name.value },
                         content = {

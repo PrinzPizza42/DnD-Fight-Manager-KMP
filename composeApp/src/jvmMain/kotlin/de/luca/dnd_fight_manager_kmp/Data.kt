@@ -31,11 +31,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.FilePresent
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.MutableState
@@ -94,7 +97,13 @@ object Data {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                textField(fileName, "Dateiname (ohne .txt)", Modifier.fillMaxWidth())
+                textField(fileName, "Dateiname (ohne .txt)", Modifier.fillMaxWidth(),
+                    {
+                        save(fileName.value)
+                        currentListName.value = fileName.value
+                        onClose()
+                    }
+                )
 
                 Box(Modifier.weight(1f))
                 Row(modifier = Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -104,7 +113,12 @@ object Data {
                             currentListName.value = fileName.value
                             onClose()
                         },
-                        content = { Text("Speichern") },
+                        content = {
+                            Text("Speichern")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
+                                contentDescription = "Enter"
+                            ) },
                         modifier = Modifier.padding(5.dp)
                     )
                 }

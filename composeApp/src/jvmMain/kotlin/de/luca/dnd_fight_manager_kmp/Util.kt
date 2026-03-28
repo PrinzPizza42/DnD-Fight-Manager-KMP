@@ -72,7 +72,7 @@ fun Color.Companion.random(): Color {
 }
 
 @Composable
-fun textField(input: MutableState<String>, label: String, modifier: Modifier = Modifier) {
+fun textField(input: MutableState<String>, label: String, modifier: Modifier = Modifier, onEnter: () -> Unit = {}) {
     val focusManager = LocalFocusManager.current
 
     MaterialTheme {
@@ -86,6 +86,7 @@ fun textField(input: MutableState<String>, label: String, modifier: Modifier = M
                     when (event.key) {
                         Key.Enter -> {
                             focusManager.clearFocus()
+                            onEnter()
                             true
                         }
 
@@ -108,7 +109,7 @@ fun textField(input: MutableState<String>, label: String, modifier: Modifier = M
 }
 
 @Composable
-fun textFieldInt(input: MutableState<Int>, label: String, modifier: Modifier = Modifier) {
+fun textFieldInt(input: MutableState<Int>, label: String, modifier: Modifier = Modifier, onEnter: () -> Unit = {}) {
     val focusManager = LocalFocusManager.current
     var isError by remember { mutableStateOf(false) }
 
