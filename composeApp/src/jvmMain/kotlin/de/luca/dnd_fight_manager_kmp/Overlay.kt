@@ -200,11 +200,16 @@ object Overlay {
 
                                         val showDeletePopup = remember { mutableStateOf(false) }
                                         IconButton(
-                                            onClick = { showDeletePopup.value = true },
-                                            content = { Icon(
-                                                imageVector = Icons.Default.Delete,
-                                                contentDescription = "Löschen"
-                                            ) },
+                                            onClick = {
+                                                if(!group.fighters.value.isEmpty()) showDeletePopup.value = true
+                                                else GroupManager.deleteGroupWithAllFighters(group)
+                                            },
+                                            content = {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = "Löschen"
+                                                )
+                                            },
                                             modifier = Modifier.padding(5.dp)
                                         )
 
