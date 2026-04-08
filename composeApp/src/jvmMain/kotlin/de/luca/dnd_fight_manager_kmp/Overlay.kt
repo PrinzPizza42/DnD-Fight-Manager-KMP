@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -83,13 +84,13 @@ object Overlay {
                         )
                     }
 
-                    val name = remember { mutableStateOf("") }
+                    var nameState by remember { mutableStateOf(TextFieldValue("")) }
                     val color = remember { mutableStateOf(Color.random()) }
                     val showPopup = remember { mutableStateOf(false) }
 
-                    textField(name, "Name", Modifier.fillMaxWidth(),
+                    textField(nameState, { newName -> nameState = newName },"Name", Modifier.fillMaxWidth(),
                         {
-                            GroupManager.add(Group(name = name, color = color))
+                            GroupManager.add(Group(name = mutableStateOf(nameState.text), color = color))
                             closeOverlay()
                         }
                     )
@@ -103,7 +104,7 @@ object Overlay {
                     ) {
                         Button(
                             onClick = {
-                                GroupManager.add(Group(name = name, color = color))
+                                GroupManager.add(Group(name = mutableStateOf(nameState.text), color = color))
                                 closeOverlay()
                             },
                             content = {
@@ -255,11 +256,11 @@ object Overlay {
                     )
                 }
 
-                val name = remember { mutableStateOf(group.name.value) }
                 Row {
-                    textField(name, "Name", Modifier.width(280.dp), { group.name.value = name.value })
+                    var nameState by remember { mutableStateOf(TextFieldValue(group.name.value)) }
+                    textField(nameState, { newName -> nameState = newName }, "Name", Modifier.width(280.dp), { group.name.value = nameState.text })
                     IconButton(
-                        onClick = { group.name.value = name.value },
+                        onClick = { group.name.value = nameState.text },
                         content = {
                             Icon(
                                 imageVector = Icons.Default.Check,

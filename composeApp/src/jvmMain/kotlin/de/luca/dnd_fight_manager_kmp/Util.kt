@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,27 +40,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.key.utf16CodePoint
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import dnd_fight_manager_kmp.composeapp.generated.resources._collectJvmMainDrawable0Resources
-import javax.swing.Popup
+import kotlinx.coroutines.delay
 import kotlin.random.Random
 
 fun Color.Companion.random(): Color {
@@ -73,99 +69,124 @@ fun Color.Companion.random(): Color {
 }
 
 @Composable
-fun textField(input: MutableState<String>, label: String, modifier: Modifier = Modifier, onEnter: () -> Unit = {}) {
+fun textField(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    onEnter: () -> Unit = {},
+    focusAllOnSelect: Boolean = false
+) {
     val focusManager = LocalFocusManager.current
+
+    var isFocused by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isFocused) {
+        if (isFocused && focusAllOnSelect) {
+            delay(70)
+
+            val textLength = value.text.length
+            onValueChange(
+                value.copy(selection = TextRange(0, textLength))
+            )
+        }
+    }
 
     MaterialTheme {
         OutlinedTextField(
-            value = input.value,
-            onValueChange = { text ->
-                input.value = text
-            },
-            modifier = modifier.onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when (event.key) {
-                        Key.Enter -> {
-                            focusManager.clearFocus()
-                            onEnter()
-                            true
-                        }
-
-                        Key.Escape -> {
-                            focusManager.clearFocus()
-                            true
-                        }
-
-                        Key.Backspace -> false
-                        else -> true
-                    }
-                } else {
-                    false
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
                 }
-            },
-            label = { label },
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Enter, Key.NumPadEnter -> {
+                                focusManager.clearFocus()
+                                onEnter()
+                                true
+                            }
+                            Key.Escape -> {
+                                focusManager.clearFocus()
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                },
+            label = { if(label != null) Text(label) },
             singleLine = true
         )
     }
 }
 
 @Composable
-fun textFieldInt(input: MutableState<Int>, label: String, modifier: Modifier = Modifier, onEnter: () -> Unit = {}) {
+fun textFieldInt(
+    value: TextFieldValue,
+    onValueChange: (TextFieldValue) -> Unit,
+    label: String? = null,
+    modifier: Modifier = Modifier,
+    onEnter: () -> Unit = {},
+    focusAllOnSelect: Boolean = false
+) {
     val focusManager = LocalFocusManager.current
     var isError by remember { mutableStateOf(false) }
 
+    var isFocused by remember { mutableStateOf(false) }
+    LaunchedEffect(isFocused) {
+        if (isFocused && value.text.isNotEmpty() && focusAllOnSelect) {
+            delay(70)
+
+            val textLength = value.text.length
+            onValueChange(
+                value.copy(selection = TextRange(0, textLength))
+            )
+        }
+    }
+
     MaterialTheme {
         OutlinedTextField(
-            value = input.value.toString(),
-            onValueChange = { text: String ->
-                if(text.toIntOrNull() != null) input.value = text.toInt()
+            value = value,
+            onValueChange = { newValue ->
+                if(newValue.text.isEmpty()) {
+                    isError = false
+                    onValueChange(TextFieldValue(0.toString()))
+                }
+                else if (newValue.text.all { it.isDigit() } && newValue.text.toIntOrNull() != null) {
+                    isError = false
+                    onValueChange(newValue)
+                } else {
+                    isError = true
+                }
             },
-            modifier = modifier.onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    val isDigit = event.utf16CodePoint.toChar().isDigit()
-
-                    // 2. Ist es eine erlaubte Navigationstaste?
-                    // (Wichtig, damit der User korrigieren oder den Cursor bewegen kann)
-                    val isNavKey = event.key in listOf(
-                        Key.Backspace, Key.Delete,
-                        Key.DirectionLeft, Key.DirectionRight,
-                        Key.DirectionUp, Key.DirectionDown,
-                        Key.Tab, Key.Enter, Key.MoveHome, Key.MoveEnd, Key.Escape
-                    )
-
-                    if(!isDigit && !isNavKey) {
-                        isError = true
-                        return@onPreviewKeyEvent true
-                    }
-                    else {
-                        isError = false
+            modifier = modifier
+                .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
+                }
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {
-                            Key.Enter -> {
+                            Key.Enter, Key.NumPadEnter -> {
                                 focusManager.clearFocus()
+                                onEnter()
                                 true
                             }
-
                             Key.Escape -> {
                                 focusManager.clearFocus()
                                 true
                             }
-
-                            Key.Backspace -> {
-                                val canBackspace = input.value.toString().length <= 1
-                                if(canBackspace) input.value = 0
-                                return@onPreviewKeyEvent canBackspace
-                            }
-                            else -> true
+                            else -> false
                         }
-                        return@onPreviewKeyEvent false
+                    } else {
+                        false
                     }
-
-                } else {
-                    false
-                }
-            },
+                },
             isError = isError,
-            label = { label },
+            label = { if(label != null) Text(label) },
             singleLine = true
         )
     }

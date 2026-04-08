@@ -23,9 +23,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -42,9 +40,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import de.luca.dnd_fight_manager_kmp.Data.SEPARATOR
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -126,9 +124,12 @@ data class Fighter(
                     }
                 }
                 Text("${index + 1}", modifier = Modifier.width(35.dp), textAlign = TextAlign.Center)
-                textField(name, "Name:", modifier = Modifier.width(200.dp))
-                textField(extraInfo, "Info:", modifier = Modifier.weight(1f))
-                textFieldInt(initiative, "Initiative:", modifier = Modifier.width(60.dp))
+                var nameState by remember { mutableStateOf(TextFieldValue(name.value)) }
+                textField(nameState, { newName -> nameState = newName; name.value = newName.text }, modifier = Modifier.width(200.dp), focusAllOnSelect = true)
+                var infoState by remember { mutableStateOf(TextFieldValue(extraInfo.value)) }
+                textField(infoState, { newInfo -> infoState = newInfo; extraInfo.value = newInfo.text }, modifier = Modifier.weight(1f), focusAllOnSelect = true)
+                var initiativeState by remember { mutableStateOf(TextFieldValue(initiative.value.toString())) }
+                textFieldInt(initiativeState, { newInit -> initiativeState = newInit; initiative.value = newInit.text.toInt() }, modifier = Modifier.width(60.dp), focusAllOnSelect = true)
                 IconButton(
                     onClick = { group.value.deleteFighter(this@Fighter) },
                     content = { Icon(

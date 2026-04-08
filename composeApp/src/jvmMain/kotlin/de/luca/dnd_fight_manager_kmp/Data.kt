@@ -32,13 +32,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
-import androidx.compose.material.icons.filled.FilePresent
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.MutableState
@@ -50,6 +46,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.text.input.TextFieldValue
 import de.luca.dnd_fight_manager_kmp.Overlay.closeOverlay
 import java.io.PrintWriter
 
@@ -93,14 +90,18 @@ object Data {
                     )
                 }
 
-                val fileName = remember { mutableStateOf(currentListName.value) }
+                var fileNameState by remember { mutableStateOf(TextFieldValue(currentListName.value)) }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                textField(fileName, "Dateiname (ohne .txt)", Modifier.fillMaxWidth(),
+                textField(
+                    fileNameState,
+                    { newText -> fileNameState = newText },
+                    "Dateiname (ohne .txt)",
+                    Modifier.fillMaxWidth(),
                     {
-                        save(fileName.value)
-                        currentListName.value = fileName.value
+                        save(fileNameState.text)
+                        currentListName.value = fileNameState.text
                         onClose()
                     }
                 )
@@ -109,8 +110,8 @@ object Data {
                 Row(modifier = Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                     Button(
                         onClick = {
-                            save(fileName.value)
-                            currentListName.value = fileName.value
+                            save(fileNameState.text)
+                            currentListName.value = fileNameState.text
                             onClose()
                         },
                         content = {
