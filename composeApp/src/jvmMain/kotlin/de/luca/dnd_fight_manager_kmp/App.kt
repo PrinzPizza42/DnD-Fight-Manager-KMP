@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -41,6 +42,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -63,6 +65,7 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentListName
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentRound
+import de.luca.dnd_fight_manager_kmp.templatesPopupContent
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -514,6 +517,21 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
             ) {
                 Text("Templates", Modifier.padding(bottom = 8.dp))
                 Box(Modifier.weight(1f))
+                openAsWindowIconButton({
+                    showTemplatesPopup.value = false
+
+                    WindowManager.openNewWindow(
+                        onCloseRequest = {
+                            showTemplatesPopup.value = true
+                        },
+                        content = {
+                            Column(Modifier.padding(start = 10.dp)) {
+                                templatesPopupContent(popupState, templates)
+                            }
+                        },
+                        title = mutableStateOf("Templates")
+                    )
+                })
                 IconButton(
                     onClick = { showTemplatesPopup.value = false },
                     content = {
@@ -525,103 +543,111 @@ fun templatesPopUp(showTemplatesPopup: MutableState<Boolean>) {
                     modifier = Modifier.padding(8.dp)
                 )
             }
-            when (popupState.value) {
-                0 -> {
-                    LazyColumn(Modifier.weight(1f)) {
-                        items(templates) { fighter: Fighter ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.Start,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(fighter.name.value)
-                                Box(Modifier.weight(1f))
-                                IconButton(
-                                    onClick = { GroupManager.freeGroup.value.addFighter(fighter.copy()) },
-                                    content = { Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Nutzen"
-                                    ) },
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                                IconButton(
-                                    onClick = {
-                                        templates.remove(fighter)
-                                        Data.saveTemplates(templates)
-                                    },
-                                    content = { Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Löschen"
-                                    ) },
-                                    modifier = Modifier.padding(5.dp)
-                                )
-                            }
-                        }
+            templatesPopupContent(popupState, templates)
+        }
+    }
+}
+
+@Composable
+private fun ColumnScope.templatesPopupContent(
+    popupState: MutableState<Int>,
+    templates: SnapshotStateList<Fighter>,
+) {
+    when (popupState.value) {
+        0 -> {
+            LazyColumn(Modifier.weight(1f)) {
+                items(templates) { fighter: Fighter ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(fighter.name.value)
+                        Box(Modifier.weight(1f))
+                        IconButton(
+                            onClick = { GroupManager.freeGroup.value.addFighter(fighter.copy()) },
+                            content = { Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Nutzen"
+                            ) },
+                            modifier = Modifier.padding(5.dp)
+                        )
+                        IconButton(
+                            onClick = {
+                                templates.remove(fighter)
+                                Data.saveTemplates(templates)
+                            },
+                            content = { Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Löschen"
+                            ) },
+                            modifier = Modifier.padding(5.dp)
+                        )
                     }
                 }
-                1 -> {
-                    if(GroupManager.fighters.isEmpty()) {
-                        Box(
-                            Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+            }
+        }
+        1 -> {
+            if(GroupManager.fighters.isEmpty()) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Keine Kämpfer gefunden", color = Color.Gray)
+                }
+            }
+            else {
+                LazyColumn(Modifier.weight(1f)) {
+                    items(GroupManager.fighters) { fighter: Fighter ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.Start,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Keine Kämpfer gefunden", color = Color.Gray)
-                        }
-                    }
-                    else {
-                        LazyColumn(Modifier.weight(1f)) {
-                            items(GroupManager.fighters) { fighter: Fighter ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp),
-                                    horizontalArrangement = Arrangement.Start,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(fighter.name.value)
-                                    Box(Modifier.weight(1f))
-                                    IconButton(
-                                        onClick = {
-                                            templates.add(fighter)
-                                            Data.saveTemplates(templates)
-                                            popupState.value = 0
-                                        },
-                                        content = { Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = "Hinzufügen"
-                                        ) },
-                                        modifier = Modifier.padding(5.dp)
-                                    )
-                                }
-                            }
+                            Text(fighter.name.value)
+                            Box(Modifier.weight(1f))
+                            IconButton(
+                                onClick = {
+                                    templates.add(fighter)
+                                    Data.saveTemplates(templates)
+                                    popupState.value = 0
+                                },
+                                content = { Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Hinzufügen"
+                                ) },
+                                modifier = Modifier.padding(5.dp)
+                            )
                         }
                     }
                 }
             }
+        }
+    }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                when (popupState.value) {
-                    0 -> {
-                        Button(
-                            onClick = { popupState.value = 1 },
-                            content = { Text("Neues Template hinzufügen") }
-                        )
-                    }
-                    1 -> {
-                        Button(
-                            onClick = { popupState.value = 0 },
-                            content = { Icon(Icons.AutoMirrored.Default.ArrowLeft, "Zurück") }
-                        )
-                    }
-                }
+    Spacer(modifier = Modifier.height(8.dp))
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        when (popupState.value) {
+            0 -> {
+                Button(
+                    onClick = { popupState.value = 1 },
+                    content = { Text("Neues Template hinzufügen") }
+                )
+            }
+            1 -> {
+                Button(
+                    onClick = { popupState.value = 0 },
+                    content = { Icon(Icons.AutoMirrored.Default.ArrowLeft, "Zurück") }
+                )
             }
         }
     }
