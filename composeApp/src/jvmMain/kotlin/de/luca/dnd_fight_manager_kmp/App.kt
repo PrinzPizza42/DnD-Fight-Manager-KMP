@@ -361,6 +361,21 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Kämpfer kopieren", Modifier.padding(bottom = 10.dp))
                 Box(Modifier.weight(1f))
+                openAsWindowIconButton({
+                    showFighterPopup.value = false
+
+                    WindowManager.openNewWindow(
+                        onCloseRequest = {
+                            showFighterPopup.value = true
+                        },
+                        content = {
+                            Column(Modifier.padding(start = 10.dp)) {
+                                copyFighterContent()
+                            }
+                        },
+                        title = mutableStateOf("Templates")
+                    )
+                })
                 IconButton(
                     onClick = { showFighterPopup.value = false },
                     content = {
@@ -373,43 +388,48 @@ fun copyFighterPopUp(showFighterPopup: MutableState<Boolean>) {
                 )
             }
 
-            if (GroupManager.fighters.isEmpty()) {
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Keine Kämpfer gefunden", color = Color.Gray)
-                }
-            } else {
-                LazyColumn(Modifier.weight(1f)) {
-                    items(GroupManager.fighters) { fighter: Fighter ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(fighter.name.value)
-                            IconButton(
-                                onClick = { fighter.group.value.addFighter(fighter.copy()) },
-                                content = {
-                                    Icon(
-                                        imageVector = Icons.Default.ContentCopy,
-                                        contentDescription = "Kopieren"
-                                    )
-                                },
-                                modifier = Modifier.padding(8.dp)
-                            )
-                        }
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
+            copyFighterContent()
         }
     }
+}
+
+@Composable
+fun ColumnScope.copyFighterContent() {
+    if (GroupManager.fighters.isEmpty()) {
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Keine Kämpfer gefunden", color = Color.Gray)
+        }
+    } else {
+        LazyColumn(Modifier.weight(1f)) {
+            items(GroupManager.fighters) { fighter: Fighter ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(fighter.name.value)
+                    IconButton(
+                        onClick = { fighter.group.value.addFighter(fighter.copy()) },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Default.ContentCopy,
+                                contentDescription = "Kopieren"
+                            )
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }
 
 @Composable
