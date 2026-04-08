@@ -31,13 +31,10 @@ import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.automirrored.filled.ArrowLeft
 import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.automirrored.filled.KeyboardBackspace
-import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Start
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -63,13 +61,13 @@ import de.luca.dnd_fight_manager_kmp.Data.paintLoadOverlay
 import kotlin.uuid.ExperimentalUuidApi
 import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
+import de.luca.dnd_fight_manager_kmp.GroupManager.currentListName
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentRound
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun App(title: MutableState<String>) {
     MaterialTheme {
-        val currentListName = remember { mutableStateOf("encounter_1") }
 
         LaunchedEffect(currentListName.value) {
             title.value = "DnD-Fight-Manager-KMP - ${currentListName.value}"
@@ -80,7 +78,7 @@ fun App(title: MutableState<String>) {
         ) {
             Box(Modifier.background(Color.Gray).fillMaxSize())
             Column(Modifier.fillMaxSize()) {
-                topBar(currentListName)
+                topBar()
 
                 fightersList(Modifier.weight(1f))
 
@@ -107,7 +105,7 @@ fun App(title: MutableState<String>) {
 }
 
 @Composable
-fun topBar(currentListName: MutableState<String>) {
+fun topBar() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -436,6 +434,20 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
             ) {
                 Text("Notizen")
                 Box(Modifier.weight(1f))
+                openAsWindowIconButton({
+                    showNotepadPopup.value = false
+
+                    WindowManager.openNewWindow(
+                        onCloseRequest = {
+                            println("Close notepad window")
+                            showNotepadPopup.value = true
+                        },
+                        content = {
+                            notepadContent(focusManager)
+                        },
+                        title = mutableStateOf("Notepad - ${currentListName.value}")
+                    )
+                })
                 IconButton(
                     onClick = { showNotepadPopup.value = false },
                     content = {
@@ -448,30 +460,35 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                 )
             }
 
-            OutlinedTextField(
-                value = GroupManager.notepad,
-                onValueChange = { text ->
-                    GroupManager.notepad = text
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .onPreviewKeyEvent { event ->
-                        if (event.type == KeyEventType.KeyDown) {
-                            when (event.key) {
-                                Key.Escape -> {
-                                    focusManager.clearFocus()
-                                    true
-                                }
-                                else -> false
-                            }
-                        } else {
-                            false
-                        }
-                    },
-                singleLine = false
-            )
+            notepadContent(focusManager)
         }
     }
+}
+
+@Composable
+private fun notepadContent(focusManager: FocusManager) {
+    OutlinedTextField(
+        value = GroupManager.notepad,
+        onValueChange = { text ->
+            GroupManager.notepad = text
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Escape -> {
+                            focusManager.clearFocus()
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            },
+        singleLine = false
+    )
 }
 
 @Composable

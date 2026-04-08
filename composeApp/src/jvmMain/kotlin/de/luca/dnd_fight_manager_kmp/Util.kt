@@ -23,6 +23,7 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.OpenInFull
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -433,4 +434,19 @@ fun Color.toHsv(): FloatArray {
     val v = max
 
     return floatArrayOf(h, s, v)
+}
+
+@Composable
+fun openAsWindowIconButton(onClick: () -> Unit) {
+    IconButton(
+        onClick = {
+            onClick()
+        },
+        content = {
+            Icon(
+                imageVector = Icons.Default.OpenInFull,
+                contentDescription = "Open as window"
+            )
+        }
+    )
 }

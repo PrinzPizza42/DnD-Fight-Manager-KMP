@@ -12,6 +12,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlin.uuid.ExperimentalUuidApi
 
 object GroupManager {
+    val currentListName = mutableStateOf("encounter_1")
+
     var groups by mutableStateOf<PersistentList<Group>>(persistentListOf())
         private set
 
