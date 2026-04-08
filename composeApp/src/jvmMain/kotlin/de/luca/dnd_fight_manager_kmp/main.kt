@@ -1,22 +1,24 @@
 package de.luca.dnd_fight_manager_kmp
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import dnd_fight_manager_kmp.composeapp.generated.resources.Res
-import dnd_fight_manager_kmp.composeapp.generated.resources.icon
-import org.jetbrains.compose.resources.painterResource
+import de.luca.dnd_fight_manager_kmp.WindowManager.mainWindowTitle
+import kotlin.uuid.ExperimentalUuidApi
 
+@OptIn(ExperimentalUuidApi::class)
 fun main() = application {
-    val title = remember { mutableStateOf("DnD-Fight-Manager-KMP") }
-    val icon = painterResource(Res.drawable.icon)
+    remember {
+        WindowManager.openNewWindow(
+            content = { App(mainWindowTitle) },
+            onCloseRequest = { exitApplication() }
+        )
+        true
+    }
 
-    Window(
-        onCloseRequest = ::exitApplication,
-        title = title.value,
-        icon = icon
-    ) {
-        App(title)
+    for (window in WindowManager.windowList) {
+        key(window.uuid) {
+            window.draw()
+        }
     }
 }
