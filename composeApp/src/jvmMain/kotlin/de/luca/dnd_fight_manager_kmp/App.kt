@@ -439,13 +439,12 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
 
                     WindowManager.openNewWindow(
                         onCloseRequest = {
-                            println("Close notepad window")
                             showNotepadPopup.value = true
                         },
                         content = {
                             notepadContent(focusManager)
                         },
-                        title = mutableStateOf("Notepad - ${currentListName.value}")
+                        title = mutableStateOf("Notepad")
                     )
                 })
                 IconButton(
