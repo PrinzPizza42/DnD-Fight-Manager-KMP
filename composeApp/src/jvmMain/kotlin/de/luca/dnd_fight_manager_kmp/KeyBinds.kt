@@ -6,4 +6,6 @@ object KeyBinds {
     // MainMenu
     val rightArrow = mutableStateOf(false)
     val leftArrow = mutableStateOf(false)
+    val altG = mutableStateOf(false) // Group menu
+    val altN = mutableStateOf(false) // Notepad
 }

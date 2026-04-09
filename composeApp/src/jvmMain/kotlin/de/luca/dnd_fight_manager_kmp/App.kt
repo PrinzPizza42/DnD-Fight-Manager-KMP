@@ -95,6 +95,10 @@ fun App(title: MutableState<String>) {
                         println("Arrow Right")
                         KeyBinds.rightArrow.value = !KeyBinds.rightArrow.value
                         true
+                    } else if (event.type == KeyEventType.KeyDown && event.key == Key.G && event.type == KeyEventType.KeyDown && event.key == Key.AltLeft) {
+                        println("Arrow Right")
+                        KeyBinds.rightArrow.value = !KeyBinds.rightArrow.value
+                        true
                     } else {
                         false
                     }
@@ -157,6 +161,9 @@ fun topBar() {
                 content = { Text("Gruppen") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.altG) {
+                Overlay.showAllGroupsOverlay(menuFocusRequester)
+            }
         }
 
         // Fighter management
