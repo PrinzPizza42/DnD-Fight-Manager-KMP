@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,13 +38,21 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.input.TextFieldValue
@@ -65,11 +74,23 @@ object Data {
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun paintSaveOverlay(onClose: () -> Unit, currentListName: MutableState<String>) {
+        val menuFocusRequester = remember { FocusRequester() }
+
         Box(
             Modifier
                 .size(500.dp)
                 .background(Color.White, RoundedCornerShape(10.dp))
                 .padding(20.dp)
+                .focusRequester(menuFocusRequester)
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                        closeOverlay()
+                        true
+                    } else {
+                        false
+                    }
+                }
         ) {
             Column {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -125,6 +146,9 @@ object Data {
                 }
             }
         }
+        LaunchedEffect(Unit) {
+            menuFocusRequester.requestFocus()
+        }
     }
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -134,12 +158,23 @@ object Data {
         currentListName: MutableState<String>
     ) {
         val fileList = remember { getAvailableFiles().toMutableStateList() }
+        val menuFocusRequester = remember { FocusRequester() }
 
         Box(
             Modifier
                 .size(500.dp)
                 .background(Color.White, RoundedCornerShape(10.dp))
                 .padding(20.dp)
+                .focusRequester(menuFocusRequester)
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                        closeOverlay()
+                        true
+                    } else {
+                        false
+                    }
+                }
         ) {
             Column {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -226,6 +261,9 @@ object Data {
                     }
                 }
             }
+        }
+        LaunchedEffect(Unit) {
+            menuFocusRequester.requestFocus()
         }
     }
 

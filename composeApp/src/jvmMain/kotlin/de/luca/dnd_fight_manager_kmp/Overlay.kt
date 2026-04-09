@@ -3,6 +3,7 @@ package de.luca.dnd_fight_manager_kmp
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardReturn
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -29,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,7 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.input.TextFieldValue
@@ -49,7 +56,7 @@ import kotlin.uuid.ExperimentalUuidApi
 
 object Overlay {
     val activeOverlay = mutableStateOf<(@Composable () -> Unit)?>(null)
-    val isActive: Boolean = activeOverlay.value != null
+    val isActive: Boolean get() = activeOverlay.value != null
 
     fun showOverlay(content: @Composable () -> Unit) {
         activeOverlay.value = content
@@ -58,13 +65,23 @@ object Overlay {
     fun closeOverlay() { activeOverlay.value = null }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun showAddGroupOverlay() {
+    fun showAddGroupOverlay(menuFocusRequester: FocusRequester) {
         showOverlay({
             Box(
                 Modifier
                     .size(500.dp)
                     .background(Color.White, RoundedCornerShape(10.dp))
                     .padding(20.dp)
+                    .focusRequester(menuFocusRequester)
+                    .focusable()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                            closeOverlay()
+                            true
+                        } else {
+                            false
+                        }
+                    }
             ) {
                 Column {
                     Row(
@@ -119,11 +136,14 @@ object Overlay {
                     }
                 }
             }
+            LaunchedEffect(Unit) {
+                menuFocusRequester.requestFocus()
+            }
         })
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    fun showAllGroupsOverlay() {
+    fun showAllGroupsOverlay(menuFocusRequester: FocusRequester) {
         showOverlay({
             MaterialTheme {
                 Box(
@@ -131,6 +151,16 @@ object Overlay {
                         .size(500.dp)
                         .background(Color.White, RoundedCornerShape(10.dp))
                         .padding(20.dp)
+                        .focusRequester(menuFocusRequester)
+                        .focusable()
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                                closeOverlay()
+                                true
+                            } else {
+                                false
+                            }
+                        }
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -220,6 +250,9 @@ object Overlay {
                             }
                         }
                     }
+                }
+                LaunchedEffect(Unit) {
+                    menuFocusRequester.requestFocus()
                 }
             }
         })

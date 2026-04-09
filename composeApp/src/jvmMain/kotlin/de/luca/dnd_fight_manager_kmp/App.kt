@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -65,19 +68,37 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentListName
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentRound
-import de.luca.dnd_fight_manager_kmp.templatesPopupContent
+import de.luca.dnd_fight_manager_kmp.Overlay.closeOverlay
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun App(title: MutableState<String>) {
     MaterialTheme {
-
         LaunchedEffect(currentListName.value) {
             title.value = "DnD-Fight-Manager-KMP - ${currentListName.value}"
         }
 
+        val menuFocusRequester = remember { FocusRequester() }
+
         Box(
-            Modifier.blur(if(Overlay.isActive) 3.dp else 0.dp)
+            Modifier
+                .blur(if(Overlay.isActive) 3.dp else 0.dp)
+                .focusRequester(menuFocusRequester)
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionLeft) {
+                        println("Arrow Left")
+                        KeyBinds.leftArrow.value = !KeyBinds.leftArrow.value
+                        true
+                    } else if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionRight) {
+                        println("Arrow Right")
+                        KeyBinds.rightArrow.value = !KeyBinds.rightArrow.value
+                        true
+                    } else {
+                        false
+                    }
+                }
         ) {
             Box(Modifier.background(Color.Gray).fillMaxSize())
             Column(Modifier.fillMaxSize()) {
@@ -88,6 +109,10 @@ fun App(title: MutableState<String>) {
                 bottomBar()
             }
 
+        }
+        LaunchedEffect(Overlay.isActive) {
+            println("Request focus")
+            menuFocusRequester.requestFocus()
         }
 
         Overlay.activeOverlay.value?.let { overlayContent ->
@@ -121,13 +146,14 @@ fun topBar() {
             .padding(horizontal = 5.dp)
             .background(Color.DarkGray, RoundedCornerShape(10.dp))
         ) {
+            val menuFocusRequester = remember { FocusRequester() }
             Button(
-                onClick = { Overlay.showAddGroupOverlay() },
+                onClick = { Overlay.showAddGroupOverlay(menuFocusRequester) },
                 content = { Text("+ Gruppe") },
                 modifier = Modifier.padding(5.dp)
             )
             Button(
-                onClick = { Overlay.showAllGroupsOverlay() },
+                onClick = { Overlay.showAllGroupsOverlay(menuFocusRequester) },
                 content = { Text("Gruppen") },
                 modifier = Modifier.padding(5.dp)
             )
@@ -676,6 +702,13 @@ private fun ColumnScope.templatesPopupContent(
 @Composable
 fun currentFighterManagement() {
     // One Index back
+    LaunchedEffect(KeyBinds.leftArrow.value) {
+        if (currentIndex >= 1) currentIndex--
+        else {
+            currentIndex = GroupManager.fighters.size - 1
+            if(currentRound > 1) currentRound--
+        }
+    }
     Button(
         onClick = {
             if (currentIndex >= 1) currentIndex--
@@ -705,6 +738,13 @@ fun currentFighterManagement() {
     )
 
     // One Index forth
+    LaunchedEffect(KeyBinds.rightArrow.value) {
+        if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
+        else {
+            currentIndex = 0
+            currentRound++
+        }
+    }
     Button(
         onClick = {
             if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
