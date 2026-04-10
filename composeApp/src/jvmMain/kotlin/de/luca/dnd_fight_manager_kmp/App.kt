@@ -6,6 +6,9 @@ import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,16 +51,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -68,8 +69,8 @@ import de.luca.dnd_fight_manager_kmp.Data.paintSaveOverlay
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentIndex
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentListName
 import de.luca.dnd_fight_manager_kmp.GroupManager.currentRound
-import de.luca.dnd_fight_manager_kmp.Overlay.closeOverlay
-import kotlinx.coroutines.delay
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds.menuFocusRequester
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalSharedTransitionApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -79,30 +80,13 @@ fun App(title: MutableState<String>) {
             title.value = "DnD-Fight-Manager-KMP - ${currentListName.value}"
         }
 
-        val menuFocusRequester = remember { FocusRequester() }
-
         Box(
             Modifier
                 .blur(if(Overlay.isActive) 3.dp else 0.dp)
                 .focusRequester(menuFocusRequester)
                 .focusable()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionLeft) {
-                        println("Arrow Left")
-                        KeyBinds.leftArrow.value = !KeyBinds.leftArrow.value
-                        true
-                    } else if (event.type == KeyEventType.KeyDown && event.key == Key.DirectionRight) {
-                        println("Arrow Right")
-                        KeyBinds.rightArrow.value = !KeyBinds.rightArrow.value
-                        true
-                    } else if (event.type == KeyEventType.KeyDown && event.key == Key.G && event.type == KeyEventType.KeyDown && event.key == Key.AltLeft) {
-                        println("Arrow Right")
-                        KeyBinds.rightArrow.value = !KeyBinds.rightArrow.value
-                        true
-                    } else {
-                        false
-                    }
-                }
+                .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
+                .onClick { menuFocusRequester.requestFocus() }
         ) {
             Box(Modifier.background(Color.Gray).fillMaxSize())
             Column(Modifier.fillMaxSize()) {
@@ -114,10 +98,7 @@ fun App(title: MutableState<String>) {
             }
 
         }
-        LaunchedEffect(Overlay.isActive) {
-            println("Request focus")
-            menuFocusRequester.requestFocus()
-        }
+        LaunchedEffect(Overlay.isActive) { menuFocusRequester.requestFocus() }
 
         Overlay.activeOverlay.value?.let { overlayContent ->
             Box(
@@ -150,19 +131,25 @@ fun topBar() {
             .padding(horizontal = 5.dp)
             .background(Color.DarkGray, RoundedCornerShape(10.dp))
         ) {
-            val menuFocusRequester = remember { FocusRequester() }
             Button(
-                onClick = { Overlay.showAddGroupOverlay(menuFocusRequester) },
+                onClick = { Overlay.showAddGroupOverlay() },
                 content = { Text("+ Gruppe") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.addGroupMenu.value) {
+                if(KeyBinds.addGroupMenu.value) {
+                    Overlay.showAddGroupOverlay()
+                }
+            }
             Button(
-                onClick = { Overlay.showAllGroupsOverlay(menuFocusRequester) },
+                onClick = { Overlay.showAllGroupsOverlay() },
                 content = { Text("Gruppen") },
                 modifier = Modifier.padding(5.dp)
             )
-            LaunchedEffect(KeyBinds.altG) {
-                Overlay.showAllGroupsOverlay(menuFocusRequester)
+            LaunchedEffect(KeyBinds.groupMenu.value) {
+                if(KeyBinds.groupMenu.value) {
+                    Overlay.showAllGroupsOverlay()
+                }
             }
         }
 
@@ -176,11 +163,13 @@ fun topBar() {
                 content = { Text("+ Kämpfer") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.addFighter.value) { if(KeyBinds.addFighter.value) GroupManager.freeGroup.value.addFighter(Fighter(mutableStateOf("Fighter-${GroupManager.fighters.size}"))) }
             Button(
                 onClick = { GroupManager.fighters.sortByDescending { it.initiative.value } },
                 content = { Text("Sortieren") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.orderFightersList.value) { if(KeyBinds.orderFightersList.value) GroupManager.fighters.sortByDescending { it.initiative.value } }
         }
 
         // Data management
@@ -193,11 +182,13 @@ fun topBar() {
                 content = { Text("Speichern") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.saveMenu.value) { if(KeyBinds.saveMenu.value) Overlay.showOverlay({ paintSaveOverlay({ Overlay.closeOverlay() }, currentListName) }) }
             Button(
                 onClick = { Overlay.showOverlay({ paintLoadOverlay({ Overlay.closeOverlay() }, currentListName) }) },
                 content = { Text("Laden") },
                 modifier = Modifier.padding(5.dp)
             )
+            LaunchedEffect(KeyBinds.loadMenu.value) { if(KeyBinds.loadMenu.value) Overlay.showOverlay({ paintLoadOverlay({ Overlay.closeOverlay() }, currentListName) }) }
         }
     }
 }
@@ -280,13 +271,33 @@ fun bottomBar() {
 @Composable
 fun extraMenusPopup() {
     val expanded = remember { mutableStateOf(false) }
-    val showFighterPopup = remember { mutableStateOf(false) }
+    val showCopyFighterPopup = remember { mutableStateOf(false) }
     val showNotepadPopup = remember { mutableStateOf(false) }
     val showTemplatesPopup = remember { mutableStateOf(false) }
 
-    if(showFighterPopup.value) copyFighterPopUp(showFighterPopup)
+    LaunchedEffect(KeyBinds.helpMenu.value) {
+        if (KeyBinds.helpMenu.value) {
+            Overlay.showHotkeysOverlay()
+        }
+    }
+
+    if(showCopyFighterPopup.value) copyFighterPopUp(showCopyFighterPopup)
+    LaunchedEffect(KeyBinds.copyCurrentFighter.value) {
+        if(KeyBinds.copyCurrentFighter.value && GroupManager.fighters.isNotEmpty()) {
+            val currentFighter = GroupManager.fighters[currentIndex]
+            currentFighter.group.value.addFighter(currentFighter.copy())
+        }
+    }
     if(showNotepadPopup.value) notepadPopUp(showNotepadPopup)
+    LaunchedEffect(KeyBinds.notepad.value) { if(KeyBinds.notepad.value) showNotepadPopup.value = true }
     if(showTemplatesPopup.value) templatesPopUp(showTemplatesPopup)
+    LaunchedEffect(KeyBinds.templates.value) { if(KeyBinds.templates.value) showTemplatesPopup.value = true }
+    LaunchedEffect(KeyBinds.deleteCurrentFighter.value) {
+        if(KeyBinds.deleteCurrentFighter.value) {
+            val fighter = GroupManager.fighters[currentIndex]
+            fighter.group.value.deleteFighter(fighter)
+        }
+    }
 
     ExposedDropdownMenuBox(
         expanded = expanded.value,
@@ -302,10 +313,28 @@ fun extraMenusPopup() {
                 expanded.value = false
             }
         ) {
+            // Help
+            DropdownMenuItem(
+                onClick = {
+                    Overlay.showHotkeysOverlay()
+                    expanded.value = false
+                }
+            ) {
+                Row {
+                    Box(
+                        Modifier
+                            .fillMaxHeight()
+                            .width(15.dp)
+                            .background(Color.White, RoundedCornerShape(4.dp))
+                            .padding(vertical = 20.dp)
+                    )
+                    Text(modifier = Modifier.padding(5.dp), text = "Hotkeys")
+                }
+            }
             // Copy Fighter
             DropdownMenuItem(
                 onClick = {
-                    showFighterPopup.value = true
+                    showCopyFighterPopup.value = true
                     expanded.value = false
                 }
             ) {
@@ -469,7 +498,6 @@ fun ColumnScope.copyFighterContent() {
 fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
     var height by remember { mutableStateOf(500.dp) }
     var width by remember { mutableStateOf(500.dp) }
-    val focusManager = LocalFocusManager.current
 
     Popup(
         onDismissRequest = { showNotepadPopup.value = false },
@@ -498,7 +526,7 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                             showNotepadPopup.value = true
                         },
                         content = {
-                            notepadContent(focusManager)
+                            notepadContent()
                         },
                         title = mutableStateOf("Notepad")
                     )
@@ -515,13 +543,13 @@ fun notepadPopUp(showNotepadPopup: MutableState<Boolean>) {
                 )
             }
 
-            notepadContent(focusManager)
+            notepadContent()
         }
     }
 }
 
 @Composable
-private fun notepadContent(focusManager: FocusManager) {
+private fun notepadContent() {
     OutlinedTextField(
         value = GroupManager.notepad,
         onValueChange = { text ->
@@ -533,7 +561,7 @@ private fun notepadContent(focusManager: FocusManager) {
                 if (event.type == KeyEventType.KeyDown) {
                     when (event.key) {
                         Key.Escape -> {
-                            focusManager.clearFocus()
+                            menuFocusRequester.requestFocus()
                             true
                         }
                         else -> false
@@ -709,11 +737,13 @@ private fun ColumnScope.templatesPopupContent(
 @Composable
 fun currentFighterManagement() {
     // One Index back
-    LaunchedEffect(KeyBinds.leftArrow.value) {
-        if (currentIndex >= 1) currentIndex--
-        else {
-            currentIndex = GroupManager.fighters.size - 1
-            if(currentRound > 1) currentRound--
+    LaunchedEffect(KeyBinds.lastFighter.value) {
+        if(KeyBinds.lastFighter.value && GroupManager.fighters.isNotEmpty()) {
+            if (currentIndex >= 1) currentIndex--
+            else {
+                currentIndex = GroupManager.fighters.size - 1
+                if(currentRound > 1) currentRound--
+            }
         }
     }
     Button(
@@ -745,11 +775,13 @@ fun currentFighterManagement() {
     )
 
     // One Index forth
-    LaunchedEffect(KeyBinds.rightArrow.value) {
-        if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
-        else {
-            currentIndex = 0
-            currentRound++
+    LaunchedEffect(KeyBinds.nextFighter.value) {
+        if(KeyBinds.nextFighter.value && GroupManager.fighters.isNotEmpty()) {
+            if (currentIndex + 1 < GroupManager.fighters.size) currentIndex++
+            else {
+                currentIndex = 0
+                currentRound++
+            }
         }
     }
     Button(

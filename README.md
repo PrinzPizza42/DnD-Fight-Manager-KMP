@@ -14,6 +14,26 @@ A Desktop application built with **Kotlin Multiplatform** and **Compose Multipla
 - **Fighter Cloning:** Quickly copy existing fighters to manage swarms or groups of identical enemies.
 - **Templates Management:** Create, manage, and utilize fighter templates to quickly add pre-configured fighters to any encounter.
 
+## Hotkeys
+
+| Key Combination | Action |
+| :--- | :--- |
+| **H** | Open this hotkey help menu |
+| **Alt + G** | Open groups list |
+| **Alt + Shift + G** | Add new group |
+| **Alt + F** | Add new fighter |
+| **Alt + O** | Sort fighters by initiative |
+| **Alt + S** | Save menu |
+| **Alt + L** | Load menu |
+| **Alt + N** | Open notepad |
+| **Alt + T** | Manage templates |
+| **Alt + C** | Copy current fighter |
+| **Alt + Backspace / Delete** | Delete current fighter |
+| **Alt + Shift + Backspace / Delete** | Delete EVERYTHING (with confirmation) |
+| **Arrow Left / Up** | Previous fighter |
+| **Arrow Right / Down** | Next fighter |
+| **Esc** | Close active menu / popup |
+
 ## Technology Stack
 
 - [Kotlin Multiplatform (KMP)](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)

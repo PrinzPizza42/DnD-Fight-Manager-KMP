@@ -51,12 +51,14 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.text.input.TextFieldValue
 import de.luca.dnd_fight_manager_kmp.Overlay.closeOverlay
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds
 import java.io.PrintWriter
 
 object Data {
@@ -83,14 +85,7 @@ object Data {
                 .padding(20.dp)
                 .focusRequester(menuFocusRequester)
                 .focusable()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-                        closeOverlay()
-                        true
-                    } else {
-                        false
-                    }
-                }
+                .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
         ) {
             Column {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -146,9 +141,8 @@ object Data {
                 }
             }
         }
-        LaunchedEffect(Unit) {
-            menuFocusRequester.requestFocus()
-        }
+        LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+        LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
     }
 
     @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
@@ -167,14 +161,7 @@ object Data {
                 .padding(20.dp)
                 .focusRequester(menuFocusRequester)
                 .focusable()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-                        closeOverlay()
-                        true
-                    } else {
-                        false
-                    }
-                }
+                .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
         ) {
             Column {
                 Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
@@ -262,9 +249,8 @@ object Data {
                 }
             }
         }
-        LaunchedEffect(Unit) {
-            menuFocusRequester.requestFocus()
-        }
+        LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+        LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
     }
 
     private fun removeFile(filename: String) {

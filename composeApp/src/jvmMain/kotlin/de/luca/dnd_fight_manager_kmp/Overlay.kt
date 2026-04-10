@@ -38,13 +38,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -52,6 +51,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds.menuFocusRequester
 import kotlin.uuid.ExperimentalUuidApi
 
 object Overlay {
@@ -65,7 +66,7 @@ object Overlay {
     fun closeOverlay() { activeOverlay.value = null }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun showAddGroupOverlay(menuFocusRequester: FocusRequester) {
+    fun showAddGroupOverlay() {
         showOverlay({
             Box(
                 Modifier
@@ -74,14 +75,7 @@ object Overlay {
                     .padding(20.dp)
                     .focusRequester(menuFocusRequester)
                     .focusable()
-                    .onPreviewKeyEvent { event ->
-                        if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-                            closeOverlay()
-                            true
-                        } else {
-                            false
-                        }
-                    }
+                    .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
             ) {
                 Column {
                     Row(
@@ -136,14 +130,13 @@ object Overlay {
                     }
                 }
             }
-            LaunchedEffect(Unit) {
-                menuFocusRequester.requestFocus()
-            }
+            LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+            LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
         })
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
-    fun showAllGroupsOverlay(menuFocusRequester: FocusRequester) {
+    fun showAllGroupsOverlay() {
         showOverlay({
             MaterialTheme {
                 Box(
@@ -153,14 +146,7 @@ object Overlay {
                         .padding(20.dp)
                         .focusRequester(menuFocusRequester)
                         .focusable()
-                        .onPreviewKeyEvent { event ->
-                            if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
-                                closeOverlay()
-                                true
-                            } else {
-                                false
-                            }
-                        }
+                        .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
                 ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -251,9 +237,8 @@ object Overlay {
                         }
                     }
                 }
-                LaunchedEffect(Unit) {
-                    menuFocusRequester.requestFocus()
-                }
+                LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+                LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
             }
         })
     }
@@ -342,5 +327,130 @@ object Overlay {
                 }
             }
         }
+    }
+
+    fun showDeleteEverythingOverlay() {
+        showOverlay({
+            Box(
+                Modifier
+                    .size(400.dp, 200.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(20.dp)
+                    .focusRequester(menuFocusRequester)
+                    .focusable()
+                    .onKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown &&
+                            (event.key == Key.Enter || event.key == Key.NumPadEnter)) {
+                            GroupManager.deleteEverything()
+                            closeOverlay()
+                            true
+                        } else {
+                            KeyBinds.onKeyPress(event)
+                        }
+                    }
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Wirklich alles löschen?")
+                    Text("(Kämpfer- und Gruppenliste)", modifier = Modifier.padding(bottom = 20.dp))
+                    Row {
+                        Button(
+                            onClick = {
+                                GroupManager.deleteEverything()
+                                closeOverlay()
+                            },
+                            modifier = Modifier.padding(5.dp),
+                            content = {
+                                Text("Ja")
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.KeyboardReturn,
+                                    contentDescription = "Enter"
+                                )
+                            }
+                        )
+                        Button(
+                            onClick = { closeOverlay() },
+                            modifier = Modifier.padding(5.dp)
+                        ) {
+                            Text("Abbrechen (Esc)")
+                        }
+                    }
+                }
+            }
+            LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+            LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
+        })
+    }
+
+    fun showHotkeysOverlay() {
+        showOverlay({
+            Box(
+                Modifier
+                    .size(500.dp, 600.dp)
+                    .background(Color.White, RoundedCornerShape(10.dp))
+                    .padding(20.dp)
+                    .focusRequester(menuFocusRequester)
+                    .focusable()
+                    .onKeyEvent { event -> KeyBinds.onKeyPress(event) }
+            ) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Hotkeys", style = MaterialTheme.typography.headlineMedium)
+                        Box(Modifier.weight(1f))
+                        IconButton(onClick = { closeOverlay() }) {
+                            Icon(Icons.Default.Close, "Schließen")
+                        }
+                    }
+
+                    val hotkeys = listOf(
+                        "H" to "Diese Hilfe öffnen",
+                        "Alt + G" to "Gruppenliste öffnen",
+                        "Alt + Shift + G" to "Neue Gruppe hinzufügen",
+                        "Alt + F" to "Neuen Kämpfer hinzufügen",
+                        "Alt + O" to "Kämpfer nach Initiative sortieren",
+                        "Alt + S" to "Speichern Menü",
+                        "Alt + L" to "Laden Menü",
+                        "Alt + N" to "Notizen öffnen",
+                        "Alt + T" to "Templates verwalten",
+                        "Alt + C" to "Aktuellen Kämpfer kopieren",
+                        "Alt + Backspace / Delete" to "Aktuellen Kämpfer löschen",
+                        "Alt + Shift + Backspace / Delete" to "ALLES löschen (Bestätigung)",
+                        "Pfeil Links / Oben" to "Vorheriger Kämpfer",
+                        "Pfeil Rechts / Unten" to "Nächster Kämpfer",
+                        "Esc" to "Menü / Popup schließen"
+                    )
+
+                    LazyColumn(
+                        Modifier
+                            .weight(1f)
+                            .padding(top = 10.dp)
+                    ) {
+                        items(hotkeys) { (key, description) ->
+                            Row(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(description, Modifier.weight(1f))
+                                Text(
+                                    key,
+                                    color = Color.DarkGray,
+                                    modifier = Modifier
+                                        .background(Color.LightGray, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            LaunchedEffect(Unit) { menuFocusRequester.requestFocus() }
+            LaunchedEffect(KeyBinds.closeMenu.value) { if(KeyBinds.closeMenu.value) closeOverlay() }
+        })
     }
 }

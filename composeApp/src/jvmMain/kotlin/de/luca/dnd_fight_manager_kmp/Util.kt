@@ -57,6 +57,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import de.luca.dnd_fight_manager_kmp.hotkeys.KeyBinds.menuFocusRequester
 import kotlinx.coroutines.delay
 import kotlin.random.Random
 
@@ -77,8 +78,6 @@ fun textField(
     onEnter: () -> Unit = {},
     focusAllOnSelect: Boolean = false
 ) {
-    val focusManager = LocalFocusManager.current
-
     var isFocused by remember { mutableStateOf(false) }
 
     LaunchedEffect(isFocused) {
@@ -104,12 +103,12 @@ fun textField(
                     if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {
                             Key.Enter, Key.NumPadEnter -> {
-                                focusManager.clearFocus()
+                                menuFocusRequester.requestFocus()
                                 onEnter()
                                 true
                             }
                             Key.Escape -> {
-                                focusManager.clearFocus()
+                                menuFocusRequester.requestFocus()
                                 true
                             }
                             else -> false
@@ -171,12 +170,12 @@ fun textFieldInt(
                     if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {
                             Key.Enter, Key.NumPadEnter -> {
-                                focusManager.clearFocus()
+                                menuFocusRequester.requestFocus()
                                 onEnter()
                                 true
                             }
                             Key.Escape -> {
-                                focusManager.clearFocus()
+                                menuFocusRequester.requestFocus()
                                 true
                             }
                             else -> false
