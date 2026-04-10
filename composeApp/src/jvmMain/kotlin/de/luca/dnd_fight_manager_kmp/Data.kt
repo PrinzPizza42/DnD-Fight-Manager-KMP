@@ -348,7 +348,7 @@ object Data {
             file.forEachLine { line ->
                 if(inNotepad) {
                     try {
-                        notepad = "$notepad\n${line.subSequence(2, line.length)}"
+                        notepad = if(notepad.isEmpty()) line.subSequence(2, line.length).toString() else "$notepad\n${line.subSequence(2, line.length)}"
                     } catch (e: IndexOutOfBoundsException) {
                         e.printStackTrace()
                         println("Could not read line: $line")
