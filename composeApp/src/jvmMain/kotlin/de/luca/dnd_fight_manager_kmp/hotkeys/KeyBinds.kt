@@ -130,8 +130,11 @@ object KeyBinds {
                     }
 
                     Key.H -> {
-                        helpMenu.value = true
-                        return true
+                        if(isAltPressed) {
+                            helpMenu.value = true
+                            return true
+                        }
+                        return false
                     }
 
                     else -> return false

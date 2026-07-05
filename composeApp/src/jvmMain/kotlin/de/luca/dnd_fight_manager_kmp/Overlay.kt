@@ -406,7 +406,7 @@ object Overlay {
                     }
 
                     val hotkeys = listOf(
-                        "H" to "Diese Hilfe öffnen",
+                        "Alt + H" to "Diese Hilfe öffnen",
                         "Alt + G" to "Gruppenliste öffnen",
                         "Alt + Shift + G" to "Neue Gruppe hinzufügen",
                         "Alt + F" to "Neuen Kämpfer hinzufügen",
